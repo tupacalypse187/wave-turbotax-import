@@ -46,7 +46,7 @@ RUN npm ci && npm cache clean --force
 COPY . .
 
 # Build application
-RUN ./node_modules/.bin/tsc --version && npm run build
+RUN npx typescript --version && npm run build
 
 # =================================================================================
 # OPTIMIZATION STAGE - Asset compression and optimization
