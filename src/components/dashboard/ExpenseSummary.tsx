@@ -1,9 +1,10 @@
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/Card'
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell } from 'recharts'
 import { COLORS } from '../dashboard/colors'
+import { NormalizedTransaction } from '../../types'
 
 interface ExpenseSummaryProps {
-  transactions: any[]
+  transactions: NormalizedTransaction[]
 }
 
 export function ExpenseSummary({ transactions }: ExpenseSummaryProps) {

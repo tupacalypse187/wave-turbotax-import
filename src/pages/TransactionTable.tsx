@@ -1,8 +1,9 @@
 import { useState, useMemo } from 'react'
 import { Card, CardContent } from '@/components/ui/Card'
+import { Transaction } from '../types'
 
 interface TransactionTableProps {
-  transactions: any[]
+  transactions: Transaction[]
   selectedCategory?: string
   onCategoryFilter?: (category: string) => void
 }
@@ -22,7 +23,7 @@ export default function TransactionTable({ transactions, selectedCategory, onCat
     }
     
     return filtered.sort((a, b) => 
-      new Date(b['Transaction Date']).getTime() - new Date(a['Transaction Date']).getTime()
+      new Date(b['Transaction Date'] || '').getTime() - new Date(a['Transaction Date'] || '').getTime()
     )
   }, [transactions, selectedCategory])
 
@@ -126,7 +127,7 @@ export default function TransactionTable({ transactions, selectedCategory, onCat
                   className="border-b border-gray-100 hover:bg-gray-50 transition-colors"
                 >
                   <td className="py-3 px-2 text-gray-900">
-                    {new Date(transaction['Transaction Date']).toLocaleDateString()}
+                    {new Date(transaction['Transaction Date'] || '').toLocaleDateString()}
                   </td>
                   <td className="py-3 px-2 text-gray-900">
                     <div className="max-w-xs truncate" title={transaction['Transaction Description']}>
@@ -135,7 +136,7 @@ export default function TransactionTable({ transactions, selectedCategory, onCat
                   </td>
                   <td className="py-3 px-2">
                     <button
-                      onClick={() => handleCategoryChange(transaction['Account Name'])}
+                      onClick={() => handleCategoryChange(transaction['Account Name'] || 'Unknown')}
                       className="text-blue-600 hover:text-blue-800 hover:underline font-medium"
                       title="Click to filter by this category"
                     >
@@ -143,7 +144,7 @@ export default function TransactionTable({ transactions, selectedCategory, onCat
                     </button>
                   </td>
                   <td className="py-3 px-2 text-right font-medium text-red-600">
-                    {formatCurrency(transaction['Amount (One column)'])}
+                    {formatCurrency(transaction['Amount (One column)'] || '0')}
                   </td>
                 </tr>
               ))}

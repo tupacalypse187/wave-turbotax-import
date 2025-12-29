@@ -1,9 +1,10 @@
 import { useState, useCallback } from 'react'
 import { Card, CardContent } from '@/components/ui/Card'
-import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, BarChart, Bar, XAxis, YAxis, CartesianGrid } from 'recharts'
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, ResponsiveContainer, Tooltip, Cell } from 'recharts'
+import { Transaction } from '../types'
 
 interface ExpenseSummaryProps {
-  transactions: any[]
+  transactions: Transaction[]
   onCategoryClick?: (category: string) => void
 }
 
@@ -17,7 +18,7 @@ export default function ExpenseSummary({ transactions, onCategoryClick }: Expens
 
   const expensesByCategory = filteredTransactions.reduce((acc, t) => {
     const category = t['Account Name'] || 'Unknown'
-    const amount = parseFloat(t['Amount (One column)']) || 0
+    const amount = parseFloat(t['Amount (One column)'] || '0') || 0
     // Treat both positive and negative as expenses (absolute value)
     acc[category] = (acc[category] || 0) + Math.abs(amount)
     return acc
@@ -123,7 +124,7 @@ export default function ExpenseSummary({ transactions, onCategoryClick }: Expens
           <div className="h-80 relative w-full">
             <div className="relative w-full h-full min-h-[320px]">
               <ResponsiveContainer width="100%" height="100%" aspect={16/9}>
-                <BarChart data={data} onClick={handleCategoryClick} style={{ cursor: 'pointer' }}>
+                <BarChart data={data} style={{ cursor: 'pointer' }}>
                   <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
                   <XAxis 
                     dataKey="category" 
@@ -137,7 +138,7 @@ export default function ExpenseSummary({ transactions, onCategoryClick }: Expens
                     tickFormatter={(value) => `$${value}`}
                   />
                   <Tooltip 
-                    formatter={(value: number) => [`$${value.toFixed(2)}`, 'Amount']}
+                    formatter={(value: number | undefined) => [`$${(value || 0).toFixed(2)}`, 'Amount']}
                     contentStyle={{
                       backgroundColor: 'rgba(255, 255, 255, 0.95)',
                       border: '1px solid #e5e7eb',
@@ -146,7 +147,7 @@ export default function ExpenseSummary({ transactions, onCategoryClick }: Expens
                     }}
                   />
                   <Bar dataKey="amount" radius={[8, 8, 0, 0]}>
-                    {data.map((entry, index) => (
+                    {data.map((_, index) => (
                       <Cell 
                         key={`cell-${index}`} 
                         fill={COLORS[index % COLORS.length]}

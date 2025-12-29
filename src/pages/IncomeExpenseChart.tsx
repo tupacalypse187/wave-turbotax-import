@@ -1,9 +1,10 @@
-import { useState, useCallback } from 'react'
+
 import { Card, CardContent } from '@/components/ui/Card'
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Area, AreaChart } from 'recharts'
+import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts'
+import { Transaction } from '../types'
 
 interface IncomeExpenseChartProps {
-  transactions: any[]
+  transactions: Transaction[]
   onMonthClick?: (month: string) => void
   selectedMonth?: string
 }
@@ -15,9 +16,9 @@ export default function IncomeExpenseChart({ transactions, onMonthClick, selecte
   )
 
   const monthlyData = filteredTransactions.reduce((acc, t) => {
-    const date = new Date(t['Transaction Date'])
+    const date = new Date(t['Transaction Date'] || '')
     const monthKey = date.toLocaleDateString('en-US', { year: 'numeric', month: 'short' })
-    const amount = parseFloat(t['Amount (One column)']) || 0
+    const amount = parseFloat(t['Amount (One column)'] || '0') || 0
     
     if (!acc[monthKey]) {
       acc[monthKey] = { month: monthKey, income: 0, expenses: 0, date: date }
@@ -38,11 +39,7 @@ export default function IncomeExpenseChart({ transactions, onMonthClick, selecte
     // Sort by date (oldest first)
     .sort((a, b) => a.date.getTime() - b.date.getTime())
 
-  const handleAreaClick = useCallback((data: any) => {
-    if (data && data.activeLabel && onMonthClick) {
-      onMonthClick(data.activeLabel)
-    }
-  }, [onMonthClick])
+
 
   if (data.length === 0) {
     return (
@@ -85,7 +82,6 @@ export default function IncomeExpenseChart({ transactions, onMonthClick, selecte
             <ResponsiveContainer width="100%" height="100%" aspect={16/9}>
               <AreaChart 
                 data={data} 
-                onClick={handleAreaClick}
                 style={{ cursor: 'pointer' }}
               >
                 <defs>
@@ -106,7 +102,7 @@ export default function IncomeExpenseChart({ transactions, onMonthClick, selecte
                   tickFormatter={(value) => `$${value}`}
                 />
                 <Tooltip 
-                  formatter={(value: number) => [`$${value.toFixed(2)}`, 'Expenses']}
+                  formatter={(value: number | undefined) => [`$${(value || 0).toFixed(2)}`, 'Expenses']}
                   contentStyle={{
                     backgroundColor: 'rgba(255, 255, 255, 0.95)',
                     border: '1px solid #e5e7eb',

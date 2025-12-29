@@ -105,7 +105,7 @@ export function convertToTXF(transactions: Transaction[], companyName: string = 
         output.push(`D${dateStr}`)
         output.push(`$${Math.abs(amount).toFixed(2)}`)
         output.push('^')
-        convertedCount++
+        void convertedCount++
       } else {
         skippedCount++
       }

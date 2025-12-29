@@ -1,8 +1,9 @@
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/Card'
 import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, Legend } from 'recharts'
+import { NormalizedTransaction } from '../../types'
 
 interface IncomeExpenseChartProps {
-  transactions: any[]
+  transactions: NormalizedTransaction[]
 }
 
 export function IncomeExpenseChart({ transactions }: IncomeExpenseChartProps) {

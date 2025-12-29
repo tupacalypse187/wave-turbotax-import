@@ -1,9 +1,8 @@
-import { useState, useCallback } from 'react'
+import React, { useState, useCallback } from 'react'
 import Papa from 'papaparse'
 import { Transaction } from '../types'
 import { useSetAtom } from 'jotai'
 import { transactionsAtom } from '../store'
-import { convertToTXF } from '../utils/txfConverter'
 
 export default function FileUpload() {
   const [file, setFile] = useState<File | null>(null)

@@ -1,9 +1,10 @@
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/Card'
 import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer, Legend, PieLabelRenderProps } from 'recharts'
 import { COLORS } from '../dashboard/colors'
+import { NormalizedTransaction } from '../../types'
 
 interface ExpensePieChartProps {
-  transactions: any[]
+  transactions: NormalizedTransaction[]
 }
 
 export function ExpensePieChart({ transactions }: ExpensePieChartProps) {

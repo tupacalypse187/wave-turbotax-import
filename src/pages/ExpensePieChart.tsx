@@ -1,9 +1,10 @@
-import { useState, useCallback } from 'react'
+import { useCallback } from 'react'
 import { Card, CardContent } from '@/components/ui/Card'
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from 'recharts'
+import { Transaction } from '../types'
 
 interface ExpensePieChartProps {
-  transactions: any[]
+  transactions: Transaction[]
   onCategoryClick?: (category: string) => void
   selectedCategory?: string
 }
@@ -16,7 +17,7 @@ export default function ExpensePieChart({ transactions, onCategoryClick, selecte
 
   const expensesByCategory = filteredTransactions.reduce((acc, t) => {
     const category = t['Account Name'] || 'Unknown'
-    const amount = parseFloat(t['Amount (One column)']) || 0
+    const amount = parseFloat(t['Amount (One column)'] || '0') || 0
     // Treat both positive and negative as expenses (absolute value)
     acc[category] = (acc[category] || 0) + Math.abs(amount)
     return acc
@@ -37,7 +38,7 @@ export default function ExpensePieChart({ transactions, onCategoryClick, selecte
 
   const total = data.reduce((sum, item) => sum + item.value, 0)
 
-  const handlePieClick = useCallback((data: any) => {
+  const handlePieClick = useCallback((data: { name?: string }) => {
     if (data && data.name && onCategoryClick) {
       onCategoryClick(data.name)
     }
@@ -56,8 +57,23 @@ export default function ExpensePieChart({ transactions, onCategoryClick, selecte
     )
   }
 
-  const renderCustomizedLabel = (props: any) => {
-    const { cx, cy, midAngle, innerRadius, outerRadius, percent } = props
+  const renderCustomizedLabel = ({
+    cx,
+    cy,
+    midAngle,
+    innerRadius,
+    outerRadius,
+    percent
+  }: {
+    cx?: number
+    cy?: number
+    midAngle?: number
+    innerRadius?: number
+    outerRadius?: number
+    percent?: number
+  }) => {
+    if (!cx || !cy || !midAngle || !innerRadius || !outerRadius || !percent) return null
+    
     const RADIAN = Math.PI / 180
     const radius = innerRadius + (outerRadius - innerRadius) * 0.5
     const x = cx + radius * Math.cos(-midAngle * RADIAN)
@@ -169,7 +185,7 @@ export default function ExpensePieChart({ transactions, onCategoryClick, selecte
                 </Pie>
                 
                 <Tooltip 
-                  formatter={(value: number) => [`$${value.toFixed(2)}`, 'Amount']}
+                  formatter={(value: number | undefined) => [`$${(value || 0).toFixed(2)}`, 'Amount']}
                   contentStyle={{
                     backgroundColor: 'rgba(255, 255, 255, 0.95)',
                     border: '1px solid #e5e7eb',

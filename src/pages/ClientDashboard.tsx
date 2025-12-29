@@ -49,7 +49,7 @@ export default function ClientDashboard() {
     
     if (selectedMonth) {
       filtered = filtered.filter(t => {
-        const date = new Date(t['Transaction Date'])
+        const date = new Date(t['Transaction Date'] || '')
         const monthKey = date.toLocaleDateString('en-US', { year: 'numeric', month: 'short' })
         return monthKey === selectedMonth
       })

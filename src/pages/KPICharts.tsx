@@ -1,8 +1,7 @@
 import { Card, CardContent } from '@/components/ui/Card'
-import { useAtom } from 'jotai'
-import { transactionsAtom } from '@/store'
+import { Transaction } from '../types'
 
-export default function KPICharts({ transactions }: { transactions: any[] }) {
+export default function KPICharts({ transactions }: { transactions: Transaction[] }) {
   // Filter out "Owner Investment / Drawings" and only keep actual expense transactions
   const filteredTransactions = transactions.filter(t => 
     t['Account Name'] !== 'Owner Investment / Drawings'
@@ -13,7 +12,7 @@ export default function KPICharts({ transactions }: { transactions: any[] }) {
   
   const totalExpenses = filteredTransactions
     .reduce((sum, t) => {
-      const amount = parseFloat(t['Amount (One column)']) || 0
+      const amount = parseFloat(t['Amount (One column)'] || '0') || 0
       // Treat both positive and negative as expenses (absolute value)
       return sum + Math.abs(amount)
     }, 0)

@@ -1,7 +1,8 @@
-import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/Card'
+import { Card, CardContent } from '@/components/ui/Card'
+import { NormalizedTransaction } from '../../types'
 
 interface KPICardsProps {
-  transactions: any[]
+  transactions: NormalizedTransaction[]
 }
 
 interface KPI {
@@ -19,15 +20,11 @@ export function KPICards({ transactions }: KPICardsProps) {
   const totalExpenses = expenses.reduce(function(sum, t) { return sum + Math.abs(t.amount) }, 0)
   const netIncome = totalIncome - totalExpenses
 
-  const breakdown = expenses.reduce(function(acc, t) {
+  expenses.reduce(function(acc: Record<string, number>, t) {
     const category = t.category || 'Uncategorized'
     acc[category] = (acc[category] || 0) + Math.abs(t.amount)
     return acc
-  }, {})
-
-  const sortedExpenses = Object.entries(breakdown).sort(function(a, b) { return b[1] - a[1] })
-  const topExpenseCategory = sortedExpenses[0] ? sortedExpenses[0][0] : null
-  const topExpenseAmount = sortedExpenses[0] ? sortedExpenses[0][1] : 0
+  }, {} as Record<string, number>)
 
   const kpis: KPI[] = [
     { label: 'Total Income', value: totalIncome, format: 'currency', color: 'text-green-600' },
