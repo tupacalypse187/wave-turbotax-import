@@ -1,301 +1,362 @@
-# NeuralSec Wave-to-TurboTax Converter (Dockerized)
+# 🌊 Wave → TurboTax Converter | React Dashboard
+**Version:** 2.0.0 | **Modern React Application**
 
-**Version:** 1.0.0
-**Author:** NeuralSec Architect
-**DockerHub User:** tupacalypse187
+[![TypeScript](https://img.shields.io/badge/TypeScript-007ACC?style=flat-square&logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
+[![React](https://img.shields.io/badge/React-20232A?style=flat-square&logo=react&logoColor=61DAFB)](https://reactjs.org/)
+[![Vite](https://img.shields.io/badge/Vite-646CFF?style=flat-square&logo=vite&logoColor=white)](https://vitejs.dev/)
+[![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-38B2AC?style=flat-square&logo=tailwind-css&logoColor=white)](https://tailwindcss.com/)
 
-## Overview
-This tool provides a secure, self-hosted Web UI to convert Wave Accounting transaction exports (CSV) into the TXF format required by TurboTax Home & Business Desktop.
+## 🎯 Overview
 
-**Features:**
-* **Web Interface:** Drag-and-drop CSV upload.
-* **Smart Mapping:** Maps Wave categories to standard TurboTax TXF Tax Lines (Schedule C).
-* **Privacy:** Runs entirely offline in a Docker container.
+A **modern, interactive React application** that converts Wave Accounting CSV exports to TurboTax TXF format with beautiful visualizations and a comprehensive financial dashboard. Built with privacy-first architecture - **all processing happens client-side**.
 
----
+### ✨ Key Features
 
-## 1. Project Structure
-Create a folder named `neuralsec-tax-converter` and create the following two files inside it.
+#### 🔄 Data Conversion
+- **Drag-and-drop CSV upload** with instant validation
+- **Wave Accounting compatibility** with automatic column mapping
+- **TXF format generation** for TurboTax import
+- **Smart duplicate filtering** removes "Owner Investment / Drawings"
 
-### File 1: `app.py`
-This is the application logic.
+#### 📊 Interactive Dashboard
+- **6 KPI Cards**: Income, Expenses, Net Income, Transactions, TXF-Ready, Top Expense
+- **Real-time Charts**:
+  - 📈 Income vs Expenses trend (monthly)
+  - 🥧 Expense distribution pie chart (clickable categories)
+  - 📊 Operating expenses bar chart (horizontal)
+- **Click-to-filter** functionality on all charts
+- **Transaction Table** with search, pagination, and category filtering
 
-```python
-import streamlit as st
-import pandas as pd
-from datetime import datetime
-import io
+#### 🎨 Modern UI/UX
+- **Glassmorphism design** with gradient backgrounds
+- **Responsive layout** works on all devices
+- **Smooth animations** and hover effects
+- **Dark theme** with purple/blue accents
+- **Tab navigation** between Converter and Dashboard
 
-# --- CONFIGURATION: MASTER TXF MAPPING ---
-# Comprehensive mapping for NeuralSec Advisory (Consulting/Tech)
-# Covers Schedule C Parts I (Income) and II (Expenses)
+#### 🔐 Privacy & Security
+- **100% client-side processing** - no server uploads
+- **No data retention** - transactions cleared on refresh
+- **Local file handling** with secure parsing
+- **Open source** and fully auditable code
 
-TXF_MAPPING = {
-    # --- INCOME (Schedule C Part I) ---
-    # Map any potential revenue category you might use in Wave
-    "Sales": 266,
-    "Service Income": 266,
-    "Consulting Income": 266,
-    "Revenue": 266,
-    "Gross Receipts": 266,
-    "Uncategorized Income": 266,
+## 🛠️ Technology Stack
 
-    # --- EXPENSES (Schedule C Part II) ---
-    
-    # Advertising (Line 8)
-    "Advertising & Promotion": 271,
-    "Marketing": 271,
-    "Web Hosting": 271, # Can be Ad/Promo or Office Exp. 
+| Technology | Purpose | Version |
+|------------|---------|---------|
+| **React 18** | Frontend Framework | 18.3.1 |
+| **TypeScript** | Type Safety | 5.6.2 |
+| **Vite** | Build Tool & Dev Server | 6.0.1 |
+| **Tailwind CSS** | Styling Framework | 4.1.18 |
+| **Jotai** | State Management | 2.10.1 |
+| **Recharts** | Data Visualization | 3.6.0 |
+| **PapaParse** | CSV Parsing | 5.4.1 |
 
-    # Car & Truck (Line 9)
-    # Note: If you use "Standard Mileage Rate", you usually enter miles in TT, 
-    # not dollar amounts here. But if you expense actual costs:
-    "Vehicle Expenses": 270,
-    "Gas & Fuel": 270,
-    
-    # Commissions & Fees (Line 10)
-    "Commissions": 272,
-    
-    # Contract Labor (Line 11)
-    "Contractors": 367, # Specifically for "Cost of Labor" or outside services
-    "Subcontractors": 367,
+## 📁 Project Structure
 
-    # Insurance (Line 15)
-    "Insurance": 275,
-    "Business Insurance": 275,
-    "Liability Insurance": 275,
-
-    # Interest (Line 16)
-    "Interest Expense": 276,
-    "Credit Card Interest": 276,
-
-    # Legal & Professional Services (Line 17)
-    "Legal & Professional Services": 277,
-    "Legal Fees": 277,
-    "Accounting Fees": 277,
-    "Consulting Fees": 277,
-
-    # Office Expenses (Line 18) - The Catch-All for Tech
-    "Office Expenses": 278,
-    "Office Supplies": 278,
-    "Postage": 278,
-    "Shipping": 278,
-    "Software": 278,
-    "Computer - Hardware": 278,  # De Minimis Safe Harbor (<$2,500)
-    "Computer - Hosting": 278,   # Can also be 271, but 278 is safe
-    "Computer - Software": 278,
-    "Small Tools & Equipment": 278,
-
-    # Rent/Lease (Line 20)
-    "Rent": 281,
-    "Equipment Rental": 280,
-
-    # Repairs (Line 21)
-    "Repairs & Maintenance": 282,
-
-    # Taxes & Licenses (Line 23)
-    "Taxes & Licenses": 286,
-    "State Taxes": 286,
-    "Permits": 286,
-
-    # Travel & Meals (Line 24)
-    "Travel": 283,
-    "Airfare": 283,
-    "Hotel": 283,
-    "Taxi & Rideshare": 283,
-    "Meals": 284,               # 50% Limit (TT calculates this)
-    "Meals & Entertainment": 284,
-    "Client Meals": 284,
-
-    # Utilities (Line 25)
-    "Utilities": 287,
-    "Telephone": 287,
-    "Mobile Phone": 287,
-    "Internet": 287,
-    "Computer - Internet": 287,
-    "Telephone Wireless": 287,
-
-    # Other Expenses (Line 27a / Part V)
-    "Dues & Subscriptions": 298,
-    "Education & Training": 298,
-    "Conferences": 298,
-    "Bank Service Charges": 298,
-    "Merchant Fees": 298,       # Stripe/PayPal fees
-    "Uniforms": 298,
-    "Gifts": 298,
-}
-
-def convert_to_txf(df):
-    output = []
-    
-    # TXF Header
-    output.append("V041") 
-    output.append("A" + "NeuralSec Advisory") 
-    output.append("D" + datetime.now().strftime("%m/%d/%Y"))
-    output.append("^")
-
-    # Process Rows
-    for index, row in df.iterrows():
-        try:
-            # Clean amount string to float
-            raw_amount = str(row['Amount']).replace(',', '').replace('$', '')
-            amount = float(raw_amount)
-            
-            category = row.get('Category', 'Uncategorized')
-            description = row.get('Description', 'No Description')
-            
-            # Robust Date Parsing
-            try:
-                date_obj = pd.to_datetime(row['Date'])
-                date_str = date_obj.strftime("%m/%d/%Y")
-            except:
-                date_str = datetime.now().strftime("%m/%d/%Y")
-
-            # Determine TXF Code
-            txf_code = TXF_MAPPING.get(category)
-            
-            if txf_code:
-                output.append("^")
-                output.append(f"C{txf_code}") # Tax Line Code
-                output.append(f"P{description}") # Description
-                output.append(f"D{date_str}") # Date
-                
-                # Logic: Wave Expenses are negative (-), Income is positive (+).
-                # TXF requires positive numbers for Expenses.
-                output.append(f"${abs(amount):.2f}") 
-                
-                output.append("^")
-                
-        except Exception as e:
-            continue
-
-    return "\n".join(output)
-
-# --- WEB INTERFACE ---
-st.set_page_config(page_title="NeuralSec Tax Converter", page_icon="💰")
-
-st.title("NeuralSec Wave -> TurboTax Converter")
-st.markdown("### Master Config (All Categories)")
-st.caption("Supports: Income, Office, Legal, Travel, Tech, and more.")
-
-uploaded_file = st.file_uploader("Upload Wave Transactions (CSV)", type="csv")
-
-if uploaded_file is not None:
-    try:
-        df = pd.read_csv(uploaded_file)
-        st.write("### Data Preview")
-        st.dataframe(df.head())
-
-        if st.button("Convert to TXF"):
-            txf_data = convert_to_txf(df)
-            st.success("Conversion Complete!")
-            
-            st.download_button(
-                label="⬇️ Download .TXF File",
-                data=txf_data,
-                file_name="neuralsec_tax_import.txf",
-                mime="application/text"
-            )
-            
-    except Exception as e:
-        st.error(f"Error: {e}")
+```
+src/
+├── components/
+│   ├── ui/
+│   │   └── Card.tsx                 # Reusable card component
+│   ├── dashboard/
+│   │   ├── KPICards.tsx             # 6 KPI metric cards
+│   │   ├── IncomeExpenseChart.tsx   # Monthly line chart
+│   │   ├── ExpensePieChart.tsx      # Category pie chart
+│   │   └── ExpenseSummary.tsx       # Horizontal bar chart
+│   ├── FileUpload.tsx               # CSV upload component
+│   └── DataPreview.tsx              # Table preview + TXF export
+├── pages/
+│   ├── Converter.tsx                 # Converter view
+│   ├── ClientDashboard.tsx          # Dashboard view
+│   └── TransactionTable.tsx         # Data table component
+├── lib/
+│   └── financialUtils.ts            # Financial calculations
+├── store/
+│   └── index.ts                     # Jotai state management
+├── types/
+│   └── index.ts                     # TypeScript interfaces
+├── utils/
+│   └── txfConverter.ts              # TXF file generation
+├── App.tsx                          # Main application
+├── main.tsx                         # Entry point
+└── index.css                        # Global styles
 ```
 
-### File 2: `Dockerfile`
+## 🚀 Quick Start
 
+### 📋 Prerequisites
+- **Node.js 18+** 
+- **npm** or **yarn**
+
+### ⚡ Installation & Development
+
+1. **Clone Repository**
+   ```bash
+   git clone https://github.com/tupacalypse187/wave-turbotax-import.git
+   cd wave-turbotax-import
+   ```
+
+2. **Install Dependencies**
+   ```bash
+   npm install
+   ```
+
+3. **Start Development Server**
+   ```bash
+   npm run dev
+   ```
+   
+4. **Open Browser**: 🌐 [http://localhost:5173](http://localhost:5173)
+
+### 🔨 Build for Production
+```bash
+npm run build
+npm run preview
+```
+
+## 📊 Data Flow Architecture
+
+```mermaid
+graph TD
+    A[User Uploads CSV] --> B[PapaParse]
+    B --> C[transactionsAtom]
+    C --> D[normalizedTransactionsAtom]
+    D --> E[Financial Calculations]
+    E --> F[KPI Cards]
+    E --> G[Charts]
+    E --> H[TXF Converter]
+    
+    D --> I[Transaction Table]
+    F --> J[Dashboard UI]
+    G --> J
+    I --> J
+    H --> K[Download TXF]
+```
+
+## 📋 CSV Format Requirements
+
+Your Wave Accounting CSV export should include these columns:
+
+| Column | Required | Wave Column Name | Description |
+|--------|----------|------------------|-------------|
+| Transaction Date | ✅ Yes | `Transaction Date` | Date format flexible |
+| Amount | ✅ Yes | `Amount (One column)` | Positive/negative numbers |
+| Account Name | ✅ Yes | `Account Name` | Category for mapping |
+| Description | ❌ No | `Description` | Optional memo field |
+
+### 📄 Example CSV Format
+```csv
+Transaction Date,Amount (One column),Account Name,Description
+2025-01-15,-252.11,Computer - Hosting,Google Workspace
+2025-01-18,-100.00,Software,GitHub Copilot
+2025-01-20,5000.00,Service Income,Client consulting
+2025-01-22,-45.99,Meals,Client lunch meeting
+```
+
+## 🗂️ Category Mapping System
+
+The app automatically maps **58+ Wave categories** to TurboTax Schedule C tax lines:
+
+### 💰 Income Categories (TXF Code 266)
+- Sales, Service Income, Consulting Income
+- Revenue, Gross Receipts, Uncategorized Income
+
+### 💸 Expense Categories (Schedule C)
+
+| Category | TXF Code | Wave Examples |
+|----------|----------|---------------|
+| Advertising & Promotion | 271 | Marketing, Web Hosting |
+| Car & Truck | 270 | Vehicle Expenses, Gas & Fuel |
+| Contractors | 367 | Subcontractors, Contract Labor |
+| Insurance | 275 | Business Insurance, Liability |
+| Interest | 276 | Credit Card Interest |
+| Legal & Professional | 277 | Legal Fees, Accounting Fees |
+| Office Expenses | 278 | Software, Computer Hardware/Software |
+| Rent | 281 | Office Rent |
+| Equipment Rental | 280 | Equipment Rental |
+| Repairs | 282 | Repairs & Maintenance |
+| Taxes & Licenses | 286 | State Taxes, Permits |
+| Travel | 283 | Airfare, Hotel, Taxi |
+| Meals | 284 | Client Meals (50% limit) |
+| Utilities | 287 | Internet, Telephone, Mobile |
+| Other Expenses | 298 | Dues, Education, Bank Fees |
+
+> **Note**: Unmapped categories are automatically skipped during TXF conversion.
+
+## 🎯 Usage Guide
+
+### 📤 Converting CSV to TXF
+
+1. **Upload File**
+   - Drag & drop CSV onto upload area
+   - Or click to browse files
+
+2. **Preview Data**
+   - Review first 10 transactions
+   - Verify column mapping
+   - Check for errors
+
+3. **Generate TXF**
+   - Click "Convert to TXF" 
+   - Download automatically starts
+   - File named `wave-turbotax-export.txf`
+
+4. **Import to TurboTax**
+   - Open TurboTax Desktop
+   - File → Import → From Accounting Software
+   - Select "Other Financial Software (TXF)"
+   - Choose downloaded file
+
+### 📈 Using the Dashboard
+
+1. **Load Data** - Upload CSV first in Converter tab
+2. **View KPIs** - Check financial health metrics
+3. **Explore Charts**:
+   - **Click pie slices** to filter by category
+   - **Hover charts** for detailed tooltips
+   - **Use transaction table** for search/filter
+4. **Analyze Trends** - Track income vs expenses over time
+
+## 🔧 Development Guide
+
+### ➕ Adding New Categories
+
+1. **Update TXF Mapping** in `src/utils/txfConverter.ts`:
+   ```typescript
+   TXF_MAPPING["Your Category"] = 278  // Use appropriate TXF code
+   ```
+
+2. **Optional**: Update `CATEGORY_MAPPING` in `src/lib/financialUtils.ts`
+
+### 📊 Adding New Charts
+
+1. **Create Component** in `src/components/dashboard/`
+2. **Use Data Atoms**: `normalizedTransactionsAtom`
+3. **Import Utilities**: From `financialUtils.ts`
+4. **Register** in `src/pages/ClientDashboard.tsx`
+
+### 🎨 Customizing Styling
+
+- **Tailwind Config**: `tailwind.config.js`
+- **Global Styles**: `src/index.css`
+- **Component Styles**: CSS Modules in `src/App.css`
+
+### 🧪 Running Tests
+
+```bash
+npm run lint      # ESLint checking
+npm run typecheck # TypeScript verification
+npm run build     # Production build test
+```
+
+## 🐳 Docker Deployment
+
+### Basic Dockerfile
 ```dockerfile
-# Base Image: Official Python Slim (Debian based) - Small & Secure
-FROM python:3.11-slim
-
-# Set working directory
+FROM node:18-alpine AS builder
 WORKDIR /app
+COPY package*.json ./
+RUN npm ci
+COPY . .
+RUN npm run build
 
-# Install dependencies
-# pandas: for CSV processing
-# streamlit: for the Web UI
-RUN pip install --no-cache-dir pandas streamlit
-
-# Copy the application code
-COPY app.py .
-
-# Expose Streamlit default port
-EXPOSE 8501
-
-# Healthcheck to ensure container is running
-HEALTHCHECK CMD curl --fail http://localhost:8501/_stcore/health || exit 1
-
-# Run the application
-ENTRYPOINT ["streamlit", "run", "app.py", "--server.port=8501", "--server.address=0.0.0.0"]
+FROM nginx:alpine
+COPY --from=builder /app/dist /usr/share/nginx/html
+COPY nginx.conf /etc/nginx/nginx.conf
+EXPOSE 80
+CMD ["nginx", "-g", "daemon off;"]
 ```
+
+### Docker Compose
+```yaml
+version: '3.8'
+services:
+  app:
+    build: .
+    ports:
+      - "80:80"
+    environment:
+      - NODE_ENV=production
+```
+
+📖 **See `DEPLOYMENT.md`** for comprehensive production deployment guides.
+
+## 🚀 Production Deployment
+
+### 🌐 Domain Configuration
+- **Primary Domain**: `tax.yantorno.party`
+- **Automatic TLS** via Caddy + Let's Encrypt
+- **Container Orchestration**: Docker Compose / Kubernetes
+
+### 🔧 Deployment Options
+1. **Docker Compose** - Simple single-server deployment
+2. **MicroK8s + Traefik** - Kubernetes for scale
+3. **GitHub Actions** - Automated CI/CD pipeline
+
+📖 **See `DEPLOYMENT.md`**, `KUBERNETES.md`, and `DOCKER.md` for detailed guides.
+
+## 🔒 Security & Privacy
+
+- ✅ **Client-side processing** - No server uploads
+- ✅ **No data persistence** - Clear on refresh
+- ✅ **Secure file handling** - Local parsing only
+- ✅ **HTTPS enforced** - TLS encryption in production
+- ✅ **No third-party tracking** - Privacy by design
+
+## 🛠️ Troubleshooting
+
+### 🔧 Common Issues
+
+| Issue | Solution |
+|-------|----------|
+| **Dependencies won't install** | Delete `node_modules` and `package-lock.json`, run `npm install` |
+| **Charts not rendering** | Check browser console, verify data in `normalizedTransactionsAtom` |
+| **TXF import fails** | Ensure CSV has mapped categories, check TXF format (V041) |
+| **Styles not applying** | Restart dev server, verify Tailwind imports |
+| **CSV parsing error** | Check column headers match expected Wave format |
+
+### 🧪 Debug Mode
+
+Enable debug logging in browser console:
+```javascript
+localStorage.setItem('debug', 'wave-app:*')
+```
+
+## 🗺️ Roadmap & Future Enhancements
+
+- [ ] **Multi-currency support** for international businesses
+- [ ] **Custom category mapping** UI for user preferences
+- [ ] **Excel/CSV export** from dashboard
+- [ ] **Year-over-year comparison** charts
+- [ ] **Budget tracking** and variance analysis
+- [ ] **Receipt upload** and attachment system
+- [ ] **Tax year filtering** and archiving
+- [ ] **Mobile app** for on-the-go expense tracking
+- [ ] **QuickBooks integration** for broader compatibility
+- [ ] **API endpoints** for automated workflows
+
+## 📄 License
+
+MIT License - feel free to use, modify, and distribute.
+
+## 🤝 Contributing
+
+1. **Fork** the repository
+2. **Create** feature branch (`git checkout -b feature/amazing-feature`)
+3. **Commit** changes (`git commit -m 'Add amazing feature'`)
+4. **Push** to branch (`git push origin feature/amazing-feature`)
+5. **Open** Pull Request
+
+## 📞 Support & Community
+
+- 🐛 **Bug Reports**: [GitHub Issues](https://github.com/tupacalypse187/wave-turbotax-import/issues)
+- 💡 **Feature Requests**: [GitHub Discussions](https://github.com/tupacalypse187/wave-turbotax-import/discussions)
+- 📧 **Security Issues**: Private message to maintainers
 
 ---
 
-## 2. Build & Run (Local Development)
-
-You can run this immediately on your Windows 11, Ubuntu, or Mac machine assuming Docker Desktop/Engine is installed.
-
-### Step 1: Build the Image
-Open your terminal in the `neuralsec-tax-converter` folder.
-
-```bash
-docker build -t neuralsec-tax-converter .
-```
-
-### Step 2: Run the Container
-```bash
-docker run -p 8501:8501 neuralsec-tax-converter
-```
-
-### Step 3: Access the Interface
-Open your browser and navigate to:
-**http://localhost:8501**
-
-1.  Upload your Wave CSV.
-2.  Click "Convert to TXF".
-3.  Download the file.
-4.  **Import to TurboTax:** File > Import > From Accounting Software > Other Financial Software (TXF).
-
----
-
-## 3. DockerHub Deployment (CI/CD)
-
-To keep this image updated and available on any of your machines (Server, Laptop, Desktop), push it to your `tupacalypse187` DockerHub account.
-
-### Step 1: Login
-```bash
-docker login
-# Enter username: tupacalypse187
-# Enter password/token
-```
-
-### Step 2: Tag the Image
-We tag it with a version number and 'latest'.
-
-```bash
-docker tag neuralsec-tax-converter tupacalypse187/neuralsec-tax-converter:v1.0
-docker tag neuralsec-tax-converter tupacalypse187/neuralsec-tax-converter:latest
-```
-
-### Step 3: Push to Hub
-```bash
-docker push tupacalypse187/neuralsec-tax-converter:v1.0
-docker push tupacalypse187/neuralsec-tax-converter:latest
-```
-
-### Step 4: Pulling on Another Machine (e.g., Ubuntu Server)
-On your Ubuntu 24.04 server, you can now simply run:
-
-```bash
-docker run -d -p 8501:8501 --name tax-converter tupacalypse187/neuralsec-tax-converter:latest
-```
-
----
-
-## 4. Maintenance & Updates
-
-When you need to update the python script (e.g., to add new Tax Categories to the `TXF_MAPPING` dictionary in `app.py`):
-
-1.  Edit `app.py`.
-2.  Rebuild: `docker build -t neuralsec-tax-converter .`
-3.  Retag: `docker tag neuralsec-tax-converter tupacalypse187/neuralsec-tax-converter:v1.1` (increment version).
-4.  Push: `docker push tupacalypse187/neuralsec-tax-converter:v1.1`
+<div align="center">
+  <p>🌊 Made with ❤️ for small business owners and accountants</p>
+  <p>⚡ Lightning-fast • 🔒 Privacy-first • 🎨 Beautiful design</p>
+</div>

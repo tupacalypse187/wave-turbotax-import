@@ -1,0 +1,8 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: wave-turbotax
+  labels:
+    name: wave-turbotax
+    app.kubernetes.io/name: wave-turbotax
+    app.kubernetes.io/part-of: wave-turbotax

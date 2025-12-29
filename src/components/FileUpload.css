@@ -1,0 +1,50 @@
+.file-upload {
+  margin-bottom: 2rem;
+}
+
+.upload-zone {
+  border: 2px dashed #cbd5e0;
+  border-radius: 8px;
+  padding: 3rem;
+  text-align: center;
+  background: #f8fafc;
+  transition: all 0.2s;
+  cursor: pointer;
+}
+
+.upload-zone:hover {
+  border-color: #667eea;
+  background: #f0f4ff;
+}
+
+.upload-content svg {
+  color: #667eea;
+  margin-bottom: 1rem;
+}
+
+.upload-content p {
+  color: #64748b;
+  margin-bottom: 1rem;
+}
+
+.file-input {
+  display: none;
+}
+
+.error {
+  color: #e53e3e;
+  margin-top: 1rem;
+  padding: 0.75rem;
+  background: #fef5f5;
+  border-radius: 6px;
+  border-left: 4px solid #e53e3e;
+}
+
+.success {
+  color: #38a169;
+  margin-top: 1rem;
+  padding: 0.75rem;
+  background: #f0fff4;
+  border-radius: 6px;
+  border-left: 4px solid #38a169;
+}
