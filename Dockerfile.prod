@@ -1,7 +1,7 @@
 # =================================================================================
 # BUILDER STAGE - Node.js with build dependencies
 # =================================================================================
-FROM node:18-alpine AS builder
+FROM node:20-alpine AS builder
 
 # Metadata
 LABEL maintainer="admin@yantorno.party"
@@ -45,8 +45,8 @@ RUN npm ci && npm cache clean --force
 # Copy source code
 COPY . .
 
-# Build application
-RUN npm run build
+# Verify TypeScript is available and build application
+RUN npx tsc --version && npm run build
 
 # =================================================================================
 # OPTIMIZATION STAGE - Asset compression and optimization
