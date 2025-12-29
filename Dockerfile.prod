@@ -39,14 +39,14 @@ RUN apk add --no-cache \
 COPY package*.json ./
 COPY package-lock.json ./
 
-# Install dependencies (including dev dependencies needed for build)
-RUN npm ci && npm cache clean --force
-
 # Copy source code
 COPY . .
 
+# Install dependencies (including dev dependencies needed for build)
+RUN npm ci && npm cache clean --force
+
 # Build application
-RUN npx typescript --version && npm run build
+RUN npm run build
 
 # =================================================================================
 # OPTIMIZATION STAGE - Asset compression and optimization
