@@ -42,11 +42,11 @@ COPY package-lock.json ./
 # Copy source code
 COPY . .
 
-# Install dependencies (including dev dependencies needed for build)
-RUN npm ci && npm cache clean --force
+# Install all dependencies (including dev dependencies needed for build)
+RUN npm install && npm cache clean --force
 
 # Build application
-RUN npm run build
+RUN npx vite build
 
 # =================================================================================
 # OPTIMIZATION STAGE - Asset compression and optimization
