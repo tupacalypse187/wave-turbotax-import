@@ -60,40 +60,40 @@ services:
       - "com.docker.compose.project=wave-turbotax"
       - "com.docker.compose.service=app"
 
-  # Caddy reverse proxy with automatic TLS
-  caddy:
-    image: caddy:2.7-alpine
-    container_name: wave-turbotax-caddy
-    restart: unless-stopped
-    ports:
-      - "80:80"
-      - "443:443"
-      - "443:443/udp"
-    volumes:
-      - ./Caddyfile:/etc/caddy/Caddyfile:ro
-      - caddy_data:/data
-      - caddy_config:/config
-      - ./logs/caddy:/var/log/caddy:rw
-    networks:
-      - app-network
-    environment:
-      - CADDY_INGRESS_PORTS=80,443
-    healthcheck:
-      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:2019/config/"]
-      interval: 30s
-      timeout: 5s
-      retries: 3
-    depends_on:
-      app:
-        condition: service_healthy
-    deploy:
-      resources:
-        limits:
-          cpus: '0.5'
-          memory: 256M
-        reservations:
-          cpus: '0.1'
-          memory: 64M
+  # Caddy service disabled - using n8n's shared Caddy instead
+  # caddy:
+  #   image: caddy:2.7-alpine
+  #   container_name: wave-turbotax-caddy
+  #   restart: unless-stopped
+  #   ports:
+  #     - "80:80"
+  #     - "443:443"
+  #     - "443:443/udp"
+  #   volumes:
+  #     - ./Caddyfile:/etc/caddy/Caddyfile:ro
+  #     - caddy_data:/data
+  #     - caddy_config:/config
+  #     - ./logs/caddy:/var/log/caddy:rw
+  #   networks:
+  #     - app-network
+  #   environment:
+  #     - CADDY_INGRESS_PORTS=80,443
+  #   healthcheck:
+  #     test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:2019/config/"]
+  #     interval: 30s
+  #     timeout: 5s
+  #     retries: 3
+  #   depends_on:
+  #     app:
+  #       condition: service_healthy
+  #   deploy:
+  #     resources:
+  #       limits:
+  #         cpus: '0.5'
+  #         memory: 256M
+  #       reservations:
+  #         cpus: '0.1'
+  #         memory: 64M
 
   # Prometheus for metrics collection
   prometheus:
@@ -167,18 +167,6 @@ services:
 
 # Persistent volumes for data persistence
 volumes:
-  caddy_data:
-    driver: local
-    driver_opts:
-      type: none
-      o: bind
-      device: ./data/caddy
-  caddy_config:
-    driver: local
-    driver_opts:
-      type: none
-      o: bind
-      device: ./data/caddy-config
   prometheus_data:
     driver: local
     driver_opts:
@@ -195,8 +183,5 @@ volumes:
 # Networks
 networks:
   app-network:
-    driver: bridge
-    ipam:
-      config:
-        - subnet: 172.20.0.0/16
-          gateway: 172.20.0.1
+    external: true
+    name: shared-network

@@ -324,11 +324,7 @@ jobs:
             # Verify deployment
             if curl -f http://localhost:8080/health; then
               echo "✅ Deployment successful"
-              
-              # Clean up old images
-              docker image prune -f
-              docker system prune -f
-              
+
               # Show status
               docker compose -f docker-compose.prod.yml ps
               docker images | grep ${IMAGE_NAME}
@@ -388,12 +384,18 @@ jobs:
           script: |
             cd /opt/wave-turbotax
 
-            # Clean up old images (keep last 3)
-            docker images --format "table {{.Repository}}:{{.Tag}}" | grep ${IMAGE_NAME} | tail -n +4 | head -n -3 | awk '{print $1}' | xargs -r docker rmi || true
+            # Clean up old wave-turbotax images only (keep last 3)
+            echo "Cleaning up old wave-turbotax images..."
+            docker images --format "{{.Repository}}:{{.Tag}}" | \
+              grep "${IMAGE_NAME}" | \
+              sort -V | \
+              head -n -3 | \
+              xargs -r docker rmi || true
 
-            # Clean up unused containers and images
-            docker container prune -f
-            docker image prune -f -a
+            # Clean up only unused wave-turbotax containers (not all containers)
+            echo "Cleaning up stopped wave-turbotax containers..."
+            docker ps -a --filter "name=wave-turbotax" --format "{{.ID}}" | \
+              xargs -r docker rm || true
 
             echo "Cleanup completed"
 
