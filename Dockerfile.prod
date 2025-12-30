@@ -87,6 +87,7 @@ RUN apk add --no-cache \
     curl \
     tini \
     dumb-init \
+    su-exec \
     && rm -rf /var/cache/apk/* \
     && addgroup -g 1001 -S appuser \
     && adduser -S appuser -u 1001 -G appuser
