@@ -21,7 +21,7 @@ on:
 
 env:
   REGISTRY: ghcr.io
-  IMAGE_NAME: wave-turbotax-app
+  IMAGE_NAME: ${{ github.repository }}
   DOMAIN: tax.yantorno.party
 
 jobs:
