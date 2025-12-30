@@ -26,7 +26,6 @@ WORKDIR /app
 
 # Install build dependencies (security scanning, optimization tools)
 RUN apk add --no-cache \
-    npm \
     git \
     python3 \
     make \
@@ -43,7 +42,7 @@ COPY package-lock.json ./
 COPY . .
 
 # Install all dependencies (including dev dependencies needed for build)
-RUN npm install && npm cache clean --force
+RUN npm install --include=dev && npm cache clean --force
 
 # Ensure PATH includes node_modules/.bin and build
 ENV PATH="/app/node_modules/.bin:${PATH}"
