@@ -121,10 +121,6 @@ EXPOSE 8080
 HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 \
     CMD /usr/local/bin/healthcheck.sh
 
-# Startup script to fix permissions before nginx starts
-COPY docker/entrypoint.sh /usr/local/bin/entrypoint.sh
-RUN chmod +x /usr/local/bin/entrypoint.sh
-
-# Use tini as init system for proper signal handling
+# Health check script is copied, no entrypoint needed
 ENTRYPOINT ["tini", "--"]
-CMD ["/usr/local/bin/entrypoint.sh"]
+CMD ["nginx", "-g", "daemon off;"]

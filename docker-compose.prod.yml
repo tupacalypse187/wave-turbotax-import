@@ -20,7 +20,7 @@ services:
     volumes:
       - ./logs/nginx:/var/log/nginx:rw
       - ./cache/nginx:/var/cache/nginx:rw
-    # Remove command override - container runs as appuser with host-side permissions
+    # Run entrypoint script that handles permissions correctly
     networks:
       - app-network
     healthcheck:
