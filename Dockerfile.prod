@@ -45,8 +45,8 @@ COPY . .
 # Install all dependencies (including dev dependencies needed for build)
 RUN npm install && npm cache clean --force
 
-# Ensure vite is available and build
-RUN npm install vite@latest --save-dev
+# Ensure PATH includes node_modules/.bin and build
+ENV PATH="/app/node_modules/.bin:${PATH}"
 RUN echo "DEBUG: vite version after install:"
 RUN npm exec vite --version
 RUN npm run build
