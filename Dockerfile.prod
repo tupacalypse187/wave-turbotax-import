@@ -1,7 +1,7 @@
 # =================================================================================
 # BUILDER STAGE - Node.js with build dependencies
 # =================================================================================
-FROM node:20-alpine AS builder
+FROM --platform=linux/amd64 node:20-alpine AS builder
 
 # Metadata
 LABEL maintainer="admin@yantorno.party"
@@ -45,8 +45,10 @@ COPY . .
 # Install all dependencies (including dev dependencies needed for build)
 RUN npm install && npm cache clean --force
 
-# Build application using npm script (works with locally installed vite)
-RUN npm run build
+# Debug and build application
+RUN ls -la node_modules/.bin/ | grep vite || echo "DEBUG: vite missing from .bin"
+RUN echo "DEBUG: Running vite from node_modules/.bin/vite"
+RUN ./node_modules/.bin/vite build
 
 # =================================================================================
 # OPTIMIZATION STAGE - Asset compression and optimization
