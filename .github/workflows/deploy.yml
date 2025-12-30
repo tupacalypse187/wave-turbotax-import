@@ -223,7 +223,7 @@ jobs:
 
       - name: 📤 Upload Trivy Scan Results
         if: always()
-        uses: github/codeql-action/upload-sarif@v3
+        uses: github/codeql-action/upload-sarif@v4
         with:
           sarif_file: "trivy-results.sarif"
 
@@ -233,11 +233,15 @@ jobs:
         with:
           image: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}@${{ steps.build.outputs.digest }}
           fail-build: false
+          severity-critical: true
+          severity-high: true
+          severity-medium: false
+          severity-low: false
           output-format: sarif
 
       - name: 📤 Upload Grype Scan Results
         if: always()
-        uses: github/codeql-action/upload-sarif@v3
+        uses: github/codeql-action/upload-sarif@v4
         with:
           sarif_file: ${{ steps.grype.outputs.sarif }}
 
@@ -281,8 +285,19 @@ jobs:
             mkdir -p /opt/wave-turbotax
             cd /opt/wave-turbotax
 
-            # Pull latest configurations
-            git pull origin main || true
+            # Initialize git repo if not exists
+            if [ ! -d .git ]; then
+              echo "Initializing git repository..."
+              git init
+              git remote add origin https://github.com/${{ github.repository }}.git
+              git fetch origin main
+              git checkout -b main origin/main
+            else
+              # Pull latest configurations
+              git fetch origin main
+              git checkout main
+              git pull origin main || true
+            fi
 
             # Create environment file
             cat > .env.prod << EOF
