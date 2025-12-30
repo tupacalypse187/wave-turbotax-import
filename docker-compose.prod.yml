@@ -20,6 +20,15 @@ services:
     volumes:
       - ./logs/nginx:/var/log/nginx:rw
       - ./cache/nginx:/var/cache/nginx:rw
+    # Fix: Start as root to set permissions, then exec nginx as appuser
+    command: >
+      /bin/sh -c "
+      mkdir -p /var/log/nginx /var/cache/nginx /var/run/nginx &&
+      chown -R appuser:appuser /var/log/nginx /var/cache/nginx /var/run/nginx &&
+      chmod -R 755 /var/log/nginx /var/cache/nginx /var/run/nginx &&
+      /usr/local/bin/healthcheck.sh &
+      exec su-exec appuser nginx -g 'daemon off;'
+      "
     networks:
       - app-network
     healthcheck:
