@@ -301,14 +301,14 @@ jobs:
             docker pull ${REGISTRY}/${IMAGE_NAME}:${IMAGE_TAG}
 
             # Update running container
-            if docker-compose -f docker-compose.prod.yml ps | grep -q "Up"; then
+            if docker compose -f docker-compose.prod.yml ps | grep -q "Up"; then
               echo "Stopping existing containers..."
-              docker-compose -f docker-compose.prod.yml down
+              docker compose -f docker-compose.prod.yml down
             fi
 
             # Start new deployment
             echo "Starting new deployment..."
-            docker-compose -f docker-compose.prod.yml --env-file .env.prod up -d
+            docker compose -f docker-compose.prod.yml --env-file .env.prod up -d
 
             # Wait for health check
             echo "Waiting for health check..."
@@ -330,11 +330,11 @@ jobs:
               docker system prune -f
               
               # Show status
-              docker-compose -f docker-compose.prod.yml ps
+              docker compose -f docker-compose.prod.yml ps
               docker images | grep ${IMAGE_NAME}
             else
               echo "❌ Health check failed"
-              docker-compose -f docker-compose.prod.yml logs
+              docker compose -f docker-compose.prod.yml logs
               exit 1
             fi
 
