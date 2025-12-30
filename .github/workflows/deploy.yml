@@ -3,6 +3,7 @@ name: 🚀 Deploy to Production
 permissions:
   packages: write
   contents: read
+  security-events: write
 
 on:
   push:
@@ -10,15 +11,15 @@ on:
   workflow_dispatch:
     inputs:
       environment:
-        description: 'Deployment environment'
+        description: "Deployment environment"
         required: true
-        default: 'production'
+        default: "production"
         type: choice
         options:
           - production
           - staging
       force_deploy:
-        description: 'Force deployment (skip tests)'
+        description: "Force deployment (skip tests)"
         required: false
         default: false
         type: boolean
@@ -36,7 +37,7 @@ jobs:
     outputs:
       security-passed: ${{ steps.security.outputs.passed }}
       quality-passed: ${{ steps.quality.outputs.passed }}
-    
+
     steps:
       - name: 📥 Checkout Repository
         uses: actions/checkout@v4
@@ -47,9 +48,9 @@ jobs:
       - name: 🔧 Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '18'
-          cache: 'npm'
-          cache-dependency-path: 'package-lock.json'
+          node-version: "18"
+          cache: "npm"
+          cache-dependency-path: "package-lock.json"
 
       - name: 📦 Install Dependencies
         run: npm ci --prefer-offline --no-audit
@@ -71,7 +72,7 @@ jobs:
         id: quality
         run: |
           echo "Running quality checks..."
-          
+
           # ESLint
           if npm run lint; then
             echo "✅ ESLint passed"
@@ -79,7 +80,7 @@ jobs:
             echo "❌ ESLint failed"
             exit 1
           fi
-          
+
           # TypeScript check
           if npm run typecheck; then
             echo "✅ TypeScript check passed"
@@ -87,7 +88,7 @@ jobs:
             echo "❌ TypeScript check failed"
             exit 1
           fi
-          
+
           # Build test
           if npm run build; then
             echo "✅ Build test passed"
@@ -112,7 +113,7 @@ jobs:
     runs-on: ubuntu-latest
     needs: security
     if: needs.security.outputs.quality-passed == 'true'
-    
+
     steps:
       - name: 📥 Checkout Repository
         uses: actions/checkout@v4
@@ -120,8 +121,8 @@ jobs:
       - name: 🔧 Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '18'
-          cache: 'npm'
+          node-version: "18"
+          cache: "npm"
 
       - name: 📦 Install Dependencies
         run: npm ci --prefer-offline
@@ -161,7 +162,7 @@ jobs:
     outputs:
       image-digest: ${{ steps.build.outputs.digest }}
       image-tag: ${{ steps.meta.outputs.version }}
-    
+
     steps:
       - name: 📥 Checkout Repository
         uses: actions/checkout@v4
@@ -217,14 +218,14 @@ jobs:
         uses: aquasecurity/trivy-action@master
         with:
           image-ref: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}@${{ steps.build.outputs.digest }}
-          format: 'sarif'
-          output: 'trivy-results.sarif'
+          format: "sarif"
+          output: "trivy-results.sarif"
 
       - name: 📤 Upload Trivy Scan Results
         if: always()
-        uses: github/codeql-action/upload-sarif@v2
+        uses: github/codeql-action/upload-sarif@v3
         with:
-          sarif_file: 'trivy-results.sarif'
+          sarif_file: "trivy-results.sarif"
 
       - name: 🛡️ Grype Security Scan
         uses: anchore/scan-action@v3
@@ -236,7 +237,7 @@ jobs:
 
       - name: 📤 Upload Grype Scan Results
         if: always()
-        uses: github/codeql-action/upload-sarif@v2
+        uses: github/codeql-action/upload-sarif@v3
         with:
           sarif_file: ${{ steps.grype.outputs.sarif }}
 
@@ -249,7 +250,7 @@ jobs:
     environment:
       name: production
       url: https://${{ env.DOMAIN }}
-    
+
     steps:
       - name: 📥 Checkout Repository
         uses: actions/checkout@v4
@@ -275,14 +276,14 @@ jobs:
             export DOMAIN="${{ env.DOMAIN }}"
             export REGISTRY="${{ env.REGISTRY }}"
             export IMAGE_NAME="${{ env.IMAGE_NAME }}"
-            
+
             # Create deployment directory if not exists
             mkdir -p /opt/wave-turbotax
             cd /opt/wave-turbotax
-            
+
             # Pull latest configurations
             git pull origin main || true
-            
+
             # Create environment file
             cat > .env.prod << EOF
             APP_VERSION=${IMAGE_TAG}
@@ -294,21 +295,21 @@ jobs:
             DEPLOY_TIME=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
             COMMIT_SHA=${{ github.sha }}
             EOF
-            
+
             # Pull new image
             echo "Pulling new image: ${REGISTRY}/${IMAGE_NAME}:${IMAGE_TAG}"
             docker pull ${REGISTRY}/${IMAGE_NAME}:${IMAGE_TAG}
-            
+
             # Update running container
             if docker-compose -f docker-compose.prod.yml ps | grep -q "Up"; then
               echo "Stopping existing containers..."
               docker-compose -f docker-compose.prod.yml down
             fi
-            
+
             # Start new deployment
             echo "Starting new deployment..."
             docker-compose -f docker-compose.prod.yml --env-file .env.prod up -d
-            
+
             # Wait for health check
             echo "Waiting for health check..."
             for i in {1..30}; do
@@ -319,7 +320,7 @@ jobs:
               echo "Health check attempt $i/30..."
               sleep 5
             done
-            
+
             # Verify deployment
             if curl -f http://localhost:8080/health; then
               echo "✅ Deployment successful"
@@ -341,7 +342,7 @@ jobs:
         run: |
           # Wait for DNS propagation
           sleep 30
-          
+
           # Health check
           if curl -f https://${{ env.DOMAIN }}/health; then
             echo "✅ Production health check passed"
@@ -349,7 +350,7 @@ jobs:
             echo "❌ Production health check failed"
             exit 1
           fi
-          
+
           # Check SSL certificate
           if curl -I https://${{ env.DOMAIN }} | grep -q "200 OK"; then
             echo "✅ HTTPS working properly"
@@ -375,7 +376,7 @@ jobs:
     runs-on: ubuntu-latest
     needs: [deploy]
     if: always()
-    
+
     steps:
       - name: 🧹 Cleanup Old Docker Images
         uses: appleboy/ssh-action@v1.0.3
@@ -386,14 +387,14 @@ jobs:
           key: ${{ secrets.PROD_SSH_KEY }}
           script: |
             cd /opt/wave-turbotax
-            
+
             # Clean up old images (keep last 3)
             docker images --format "table {{.Repository}}:{{.Tag}}" | grep ${IMAGE_NAME} | tail -n +4 | head -n -3 | awk '{print $1}' | xargs -r docker rmi || true
-            
+
             # Clean up unused containers and images
             docker container prune -f
             docker image prune -f -a
-            
+
             echo "Cleanup completed"
 
       - name: 📧 Notify on Success
@@ -405,7 +406,7 @@ jobs:
               --data "{\"text\":\"✅ Wave TurboTax deployed successfully to https://${{ env.DOMAIN }}\n\n📦 Image: ${{ needs.build-image.outputs.image-digest }}\n👤 Deployed by: ${{ github.actor }}\n🌿 Commit: ${{ github.sha }}\"}" \
               ${{ secrets.SLACK_WEBHOOK_URL }}
           fi
-          
+
           # Discord notification (if configured)
           if [ -n "${{ secrets.DISCORD_WEBHOOK_URL }}" ]; then
             curl -H "Content-Type: application/json" \
@@ -413,7 +414,7 @@ jobs:
               -d "{\"content\":\"✅ **Wave TurboTax Deployed**\n\n🌐 **URL**: https://${{ env.DOMAIN }}\n📦 **Image**: ${{ needs.build-image.outputs.image-digest }}\n👤 **Deployed by**: ${{ github.actor }}\n🌿 **Commit**: ${{ github.sha }}\"}" \
               ${{ secrets.DISCORD_WEBHOOK_URL }}
           fi
-          
+
           # Email notification (if configured)
           if [ -n "${{ secrets.SMTP_HOST }}" ]; then
             curl --ssl-reqd \
@@ -448,7 +449,7 @@ jobs:
               --data "{\"text\":\"🚨 Wave TurboTax deployment FAILED!\n\n🌐 Domain: https://${{ env.DOMAIN }}\n👤 Attempted by: ${{ github.actor }}\n🌿 Commit: ${{ github.sha }}\n📊 Result: ${{ needs.deploy.result }}\n\n🔗 Check the workflow: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}\"}" \
               ${{ secrets.SLACK_WEBHOOK_URL }}
           fi
-          
+
           # Discord notification
           if [ -n "${{ secrets.DISCORD_WEBHOOK_URL }}" ]; then
             curl -H "Content-Type: application/json" \
@@ -461,8 +462,8 @@ jobs:
         if: needs.deploy.result == 'success'
         uses: chrnorm/deployment-status@v2
         with:
-          token: '${{ github.token }}'
-          environment-url: 'https://${{ env.DOMAIN }}'
+          token: "${{ github.token }}"
+          environment-url: "https://${{ env.DOMAIN }}"
           environment: production
           deployment-id: ${{ github.run_id }}
 
@@ -472,7 +473,7 @@ jobs:
     runs-on: ubuntu-latest
     needs: [deploy]
     if: success() && github.event_name == 'push' && github.ref == 'refs/heads/main'
-    
+
     steps:
       - name: 🧪 Load Testing with K6
         uses: grafana/k6-action@v0.3.1
@@ -495,14 +496,14 @@ jobs:
     runs-on: ubuntu-latest
     needs: [deploy]
     if: success()
-    
+
     steps:
       - name: 🛡️ OWASP ZAP Baseline Scan
         uses: zaproxy/action-baseline@v0.10.0
         with:
-          target: 'https://${{ env.DOMAIN }}'
-          rules_file_name: '.zap/rules.tsv'
-          cmd_options: '-a'
+          target: "https://${{ env.DOMAIN }}"
+          rules_file_name: ".zap/rules.tsv"
+          cmd_options: "-a"
 
       - name: 📤 Upload Security Report
         uses: actions/upload-artifact@v4
