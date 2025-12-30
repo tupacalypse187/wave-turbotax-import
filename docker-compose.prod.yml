@@ -1,5 +1,4 @@
 # Production Docker Compose for Wave TurboTax Converter
-version: '3.8'
 
 # Environment variables
 x-common-variables: &common-variables
@@ -11,16 +10,7 @@ x-common-variables: &common-variables
 services:
   # Main React application
   app:
-    build:
-      context: .
-      dockerfile: Dockerfile.prod
-      target: production
-      args:
-        - APP_VERSION=2.0.0
-        - NODE_ENV=production
-        - VITE_APP_URL=https://tax.yantorno.party
-        - VITE_API_URL=https://api.tax.yantorno.party
-    image: wave-turbotax-app:prod
+    image: ghcr.io/tupacalypse187/wave-turbotax-import:main
     container_name: wave-turbotax-app
     restart: unless-stopped
     environment:

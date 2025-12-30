@@ -1,7 +1,7 @@
 # =================================================================================
 # BUILDER STAGE - Node.js with build dependencies
 # =================================================================================
-FROM --platform=linux/amd64 node:20-alpine AS builder
+FROM node:20-alpine AS builder
 
 # Metadata
 LABEL maintainer="admin@yantorno.party"

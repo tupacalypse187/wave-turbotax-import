@@ -233,10 +233,7 @@ jobs:
         with:
           image: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}@${{ steps.build.outputs.digest }}
           fail-build: false
-          severity-critical: true
-          severity-high: true
-          severity-medium: false
-          severity-low: false
+          severity-cutoff: high
           output-format: sarif
 
       - name: 📤 Upload Grype Scan Results
