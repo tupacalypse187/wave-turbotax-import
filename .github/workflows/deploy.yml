@@ -1,5 +1,6 @@
 name: 🚀 Deploy to Production
 
+permissions:
   packages: write
   contents: read
   security-events: write
@@ -474,8 +475,6 @@ jobs:
           environment-url: "https://${{ env.DOMAIN }}"
           environment: production
           deployment-id: ${{ github.run_id }}
-
-
 
   # 🛡️ Post-Deployment Security Scan
   security-scan:
