@@ -56,7 +56,10 @@ RUN npm run build
 # =================================================================================
 # OPTIMIZATION STAGE - Asset compression and optimization
 # =================================================================================
-FROM alpine:3.19 AS optimizer
+# =================================================================================
+# OPTIMIZATION STAGE - Asset compression and optimization
+# =================================================================================
+FROM alpine:3.21 AS optimizer
 
 # Install optimization tools
 RUN apk add --no-cache \
@@ -79,7 +82,7 @@ RUN echo "🚀 Optimizing static assets..." \
 # =================================================================================
 # PRODUCTION STAGE - Minimal Nginx with security hardening
 # =================================================================================
-FROM nginx:1.25-alpine AS production
+FROM nginx:1.27-alpine AS production
 
 # Metadata
 LABEL maintainer="admin@yantorno.party"

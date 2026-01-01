@@ -10,9 +10,9 @@ interface ExpenseSummaryProps {
 
 export default function ExpenseSummary({ transactions, onCategoryClick }: ExpenseSummaryProps) {
   const [viewMode, setViewMode] = useState<'bar' | 'grid'>('grid')
-  
+
   // Filter out Owner Investment / Drawings and only keep actual expense transactions
-  const filteredTransactions = transactions.filter(t => 
+  const filteredTransactions = transactions.filter(t =>
     t['Account Name'] !== 'Owner Investment / Drawings'
   )
 
@@ -36,7 +36,7 @@ export default function ExpenseSummary({ transactions, onCategoryClick }: Expens
   const totalExpenses = data.reduce((sum, item) => sum + item.amount, 0)
 
   const COLORS = [
-    '#3b82f6', '#8b5cf6', '#ec4899', '#f59e0b', 
+    '#3b82f6', '#8b5cf6', '#ec4899', '#f59e0b',
     '#10b981', '#14b8a6', '#f97316', '#ef4444'
   ]
 
@@ -48,10 +48,10 @@ export default function ExpenseSummary({ transactions, onCategoryClick }: Expens
 
   if (data.length === 0) {
     return (
-      <Card>
+      <Card className="bg-white dark:bg-slate-800/50 border-slate-200 dark:border-slate-700/50 backdrop-blur-sm transition-colors">
         <CardContent className="p-6">
-          <h3 className="text-lg font-semibold text-gray-900 mb-4">Expense Breakdown</h3>
-          <div className="h-80 flex items-center justify-center text-gray-500">
+          <h3 className="text-lg font-semibold text-slate-900 dark:text-white mb-4">Expense Breakdown</h3>
+          <div className="h-80 flex items-center justify-center text-slate-500 dark:text-slate-400">
             No expense data available
           </div>
         </CardContent>
@@ -60,31 +60,29 @@ export default function ExpenseSummary({ transactions, onCategoryClick }: Expens
   }
 
   return (
-    <Card className="shadow-lg">
+    <Card className="shadow-lg bg-white dark:bg-slate-800/50 border-slate-200 dark:border-slate-700/50 backdrop-blur-sm transition-colors">
       <CardContent className="p-6">
         <div className="flex justify-between items-center mb-6">
           <div>
-            <h3 className="text-lg font-semibold text-gray-900">Expense Breakdown</h3>
-            <p className="text-sm text-gray-600 mt-1">Click any category to filter transactions</p>
+            <h3 className="text-lg font-semibold text-slate-900 dark:text-white">Expense Breakdown</h3>
+            <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">Click any category to filter transactions</p>
           </div>
           <div className="flex gap-2">
             <button
               onClick={() => setViewMode('grid')}
-              className={`px-3 py-1 text-sm rounded-md transition-colors ${
-                viewMode === 'grid' 
-                  ? 'bg-blue-100 text-blue-700' 
-                  : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-              }`}
+              className={`px-3 py-1 text-sm rounded-md transition-colors ${viewMode === 'grid'
+                  ? 'bg-blue-100 dark:bg-blue-500/20 text-blue-700 dark:text-blue-300'
+                  : 'bg-slate-100 dark:bg-slate-700/50 text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700'
+                }`}
             >
               Grid
             </button>
             <button
               onClick={() => setViewMode('bar')}
-              className={`px-3 py-1 text-sm rounded-md transition-colors ${
-                viewMode === 'bar' 
-                  ? 'bg-blue-100 text-blue-700' 
-                  : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-              }`}
+              className={`px-3 py-1 text-sm rounded-md transition-colors ${viewMode === 'bar'
+                  ? 'bg-blue-100 dark:bg-blue-500/20 text-blue-700 dark:text-blue-300'
+                  : 'bg-slate-100 dark:bg-slate-700/50 text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700'
+                }`}
             >
               Chart
             </button>
@@ -99,21 +97,21 @@ export default function ExpenseSummary({ transactions, onCategoryClick }: Expens
                 <div
                   key={item.category}
                   onClick={() => handleCategoryClick(item.category)}
-                  className="p-4 border border-gray-200 rounded-lg hover:border-blue-300 hover:bg-blue-50 cursor-pointer transition-all duration-200 hover:shadow-md"
+                  className="p-4 border border-slate-200 dark:border-slate-700/50 rounded-lg hover:border-blue-300 dark:hover:border-blue-500/50 hover:bg-blue-50 dark:hover:bg-blue-500/10 cursor-pointer transition-all duration-200 hover:shadow-md bg-white dark:bg-transparent"
                 >
                   <div className="flex items-center justify-between mb-2">
-                    <div 
-                      className="w-4 h-4 rounded-full" 
+                    <div
+                      className="w-4 h-4 rounded-full"
                       style={{ backgroundColor: COLORS[index % COLORS.length] }}
                     ></div>
-                    <span className="text-lg font-bold text-gray-900">
+                    <span className="text-lg font-bold text-slate-900 dark:text-white">
                       ${item.amount.toFixed(0)}
                     </span>
                   </div>
-                  <div className="text-sm font-medium text-gray-700 mb-1 truncate" title={item.category}>
+                  <div className="text-sm font-medium text-slate-700 dark:text-slate-300 mb-1 truncate" title={item.category}>
                     {item.category}
                   </div>
-                  <div className="text-xs text-gray-500">
+                  <div className="text-xs text-slate-500 dark:text-slate-400">
                     {percentage.toFixed(1)}% of total
                   </div>
                 </div>
@@ -123,33 +121,36 @@ export default function ExpenseSummary({ transactions, onCategoryClick }: Expens
         ) : (
           <div className="h-80 relative w-full">
             <div className="relative w-full h-full min-h-[320px]">
-              <ResponsiveContainer width="100%" height="100%" aspect={16/9}>
+              <ResponsiveContainer width="100%" height="100%" aspect={16 / 9}>
                 <BarChart data={data} style={{ cursor: 'pointer' }}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
-                  <XAxis 
-                    dataKey="category" 
-                    tick={{ fill: '#6b7280', fontSize: 11 }}
+                  <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" strokeOpacity={0.3} />
+                  <XAxis
+                    dataKey="category"
+                    tick={{ fill: 'currentColor', fontSize: 11 }}
+                    className="text-slate-500 dark:text-slate-400"
                     angle={-45}
                     textAnchor="end"
                     height={80}
                   />
-                  <YAxis 
-                    tick={{ fill: '#6b7280', fontSize: 12 }}
+                  <YAxis
+                    tick={{ fill: 'currentColor', fontSize: 12 }}
+                    className="text-slate-500 dark:text-slate-400"
                     tickFormatter={(value) => `$${value}`}
                   />
-                  <Tooltip 
+                  <Tooltip
                     formatter={(value: number | undefined) => [`$${(value || 0).toFixed(2)}`, 'Amount']}
                     contentStyle={{
                       backgroundColor: 'rgba(255, 255, 255, 0.95)',
-                      border: '1px solid #e5e7eb',
+                      border: '1px solid #e2e8f0',
                       borderRadius: '8px',
-                      boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
+                      boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
+                      color: '#1e293b'
                     }}
                   />
                   <Bar dataKey="amount" radius={[8, 8, 0, 0]}>
                     {data.map((_, index) => (
-                      <Cell 
-                        key={`cell-${index}`} 
+                      <Cell
+                        key={`cell-${index}`}
                         fill={COLORS[index % COLORS.length]}
                       />
                     ))}
@@ -160,12 +161,12 @@ export default function ExpenseSummary({ transactions, onCategoryClick }: Expens
           </div>
         )}
 
-        <div className="mt-6 pt-4 border-t border-gray-200">
+        <div className="mt-6 pt-4 border-t border-slate-200 dark:border-slate-700/50">
           <div className="flex justify-between items-center">
-            <div className="text-sm text-gray-600">
+            <div className="text-sm text-slate-600 dark:text-slate-400">
               Top {data.length} of {Object.keys(expensesByCategory).length} categories
             </div>
-            <div className="text-lg font-semibold text-gray-900">
+            <div className="text-lg font-semibold text-slate-900 dark:text-white">
               Total: ${totalExpenses.toFixed(2)}
             </div>
           </div>

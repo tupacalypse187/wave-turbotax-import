@@ -117,7 +117,7 @@ export default function FileUpload() {
                 </svg>
               </div>
               <div>
-                <p className="text-lg font-medium text-white">Drag and drop your CSV file here</p>
+                <p className="text-lg font-medium text-slate-700 dark:!text-white">Drag and drop your CSV file here</p>
                 <p className="text-slate-400 mt-1">or click to browse from your computer</p>
               </div>
               <input

@@ -11,7 +11,7 @@ interface ExpensePieChartProps {
 
 export default function ExpensePieChart({ transactions, onCategoryClick, selectedCategory }: ExpensePieChartProps) {
   // Filter out Owner Investment / Drawings and only keep actual expense transactions
-  const filteredTransactions = transactions.filter(t => 
+  const filteredTransactions = transactions.filter(t =>
     t['Account Name'] !== 'Owner Investment / Drawings'
   )
 
@@ -32,7 +32,7 @@ export default function ExpensePieChart({ transactions, onCategoryClick, selecte
     .slice(0, 8)
 
   const COLORS = [
-    '#3b82f6', '#8b5cf6', '#ec4899', '#f59e0b', 
+    '#3b82f6', '#8b5cf6', '#ec4899', '#f59e0b',
     '#10b981', '#14b8a6', '#f97316', '#ef4444'
   ]
 
@@ -46,10 +46,10 @@ export default function ExpensePieChart({ transactions, onCategoryClick, selecte
 
   if (data.length === 0) {
     return (
-      <Card className="shadow-lg">
+      <Card className="shadow-lg bg-white dark:bg-slate-800/50 border-slate-200 dark:border-slate-700/50 backdrop-blur-sm transition-colors">
         <CardContent className="p-6">
-          <h3 className="text-lg font-semibold text-gray-900 mb-4">Expense Distribution</h3>
-          <div className="h-64 flex items-center justify-center text-gray-500">
+          <h3 className="text-lg font-semibold text-slate-900 dark:text-white mb-4">Expense Distribution</h3>
+          <div className="h-64 flex items-center justify-center text-slate-500 dark:text-slate-400">
             No expense data available
           </div>
         </CardContent>
@@ -73,7 +73,7 @@ export default function ExpensePieChart({ transactions, onCategoryClick, selecte
     percent?: number
   }) => {
     if (!cx || !cy || !midAngle || !innerRadius || !outerRadius || !percent) return null
-    
+
     const RADIAN = Math.PI / 180
     const radius = innerRadius + (outerRadius - innerRadius) * 0.5
     const x = cx + radius * Math.cos(-midAngle * RADIAN)
@@ -82,13 +82,13 @@ export default function ExpensePieChart({ transactions, onCategoryClick, selecte
     if (percent < 0.05) return null // Don't show label for slices less than 5%
 
     return (
-      <text 
-        x={x} 
-        y={y} 
-        fill="white" 
-        textAnchor={x > cx ? 'start' : 'end'} 
+      <text
+        x={x}
+        y={y}
+        fill="white"
+        textAnchor={x > cx ? 'start' : 'end'}
         dominantBaseline="central"
-        className="text-xs font-medium"
+        className="text-xs font-medium drop-shadow-md"
       >
         {`${(percent * 100).toFixed(0)}%`}
       </text>
@@ -96,32 +96,32 @@ export default function ExpensePieChart({ transactions, onCategoryClick, selecte
   }
 
   return (
-    <Card className="shadow-lg">
+    <Card className="shadow-lg bg-white dark:bg-slate-800/50 border-slate-200 dark:border-slate-700/50 backdrop-blur-sm transition-colors">
       <CardContent className="p-6">
         <div className="flex justify-between items-start mb-4">
           <div>
-            <h3 className="text-lg font-semibold text-gray-900">Expense Distribution</h3>
-            <p className="text-sm text-gray-600 mt-1">Click to filter by category</p>
+            <h3 className="text-lg font-semibold text-slate-900 dark:text-white">Expense Distribution</h3>
+            <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">Click to filter by category</p>
           </div>
           {selectedCategory && (
             <div className="flex items-center gap-2">
-              <span className="text-sm text-blue-600 font-medium bg-blue-50 px-3 py-1 rounded-full">
+              <span className="text-sm text-blue-600 dark:text-blue-400 font-medium bg-blue-50 dark:bg-blue-500/20 px-3 py-1 rounded-full border border-blue-200 dark:border-blue-500/30">
                 {selectedCategory}
               </span>
               <button
                 onClick={() => onCategoryClick?.('')}
-                className="text-sm text-gray-500 hover:text-gray-700"
+                className="text-sm text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200"
               >
                 Clear
               </button>
             </div>
           )}
         </div>
-        
+
         <div className="h-80 relative w-full">
           {/* Background shadow effect */}
           <div className="absolute inset-0 flex items-center justify-center">
-            <div 
+            <div
               className="rounded-full opacity-20 blur-xl"
               style={{
                 width: '200px',
@@ -130,7 +130,7 @@ export default function ExpensePieChart({ transactions, onCategoryClick, selecte
               }}
             ></div>
           </div>
-          
+
           <div className="relative w-full h-full min-h-[320px]">
             <ResponsiveContainer width="100%" height="100%" aspect={1}>
               <PieChart>
@@ -141,20 +141,20 @@ export default function ExpensePieChart({ transactions, onCategoryClick, selecte
                       <stop offset="100%" stopColor={color} stopOpacity={1} />
                     </linearGradient>
                   ))}
-                  
+
                   {/* Drop shadow filter */}
                   <filter id="dropshadow" x="-50%" y="-50%" width="200%" height="200%">
-                    <feGaussianBlur in="SourceAlpha" stdDeviation="3"/>
-                    <feOffset dx="0" dy="2" result="offsetblur"/>
-                    <feFlood floodColor="#000000" floodOpacity="0.2"/>
-                    <feComposite in2="offsetblur" operator="in"/>
+                    <feGaussianBlur in="SourceAlpha" stdDeviation="3" />
+                    <feOffset dx="0" dy="2" result="offsetblur" />
+                    <feFlood floodColor="#000000" floodOpacity="0.2" />
+                    <feComposite in2="offsetblur" operator="in" />
                     <feMerge>
-                      <feMergeNode/>
-                      <feMergeNode in="SourceGraphic"/>
+                      <feMergeNode />
+                      <feMergeNode in="SourceGraphic" />
                     </feMerge>
                   </filter>
                 </defs>
-                
+
                 <Pie
                   data={data}
                   cx="50%"
@@ -170,56 +170,57 @@ export default function ExpensePieChart({ transactions, onCategoryClick, selecte
                   filter="url(#dropshadow)"
                 >
                   {data.map((entry, index) => (
-                    <Cell 
-                      key={`cell-${index}`} 
+                    <Cell
+                      key={`cell-${index}`}
                       fill={`url(#gradient-${index})`}
-                      stroke={selectedCategory === entry.name ? '#1e40af' : 'white'}
+                      stroke={selectedCategory === entry.name ? '#1e40af' : 'white dark:stroke-slate-800'}
                       strokeWidth={selectedCategory === entry.name ? 3 : 2}
                       style={{
-                        filter: selectedCategory === entry.name 
+                        filter: selectedCategory === entry.name
                           ? 'brightness(1.1) drop-shadow(0 4px 6px rgba(0, 0, 0, 0.3))'
                           : 'drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1))'
                       }}
                     />
                   ))}
                 </Pie>
-                
-                <Tooltip 
+
+                <Tooltip
                   formatter={(value: number | undefined) => [`$${(value || 0).toFixed(2)}`, 'Amount']}
                   contentStyle={{
                     backgroundColor: 'rgba(255, 255, 255, 0.95)',
-                    border: '1px solid #e5e7eb',
+                    border: '1px solid #e2e8f0',
                     borderRadius: '8px',
-                    boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)'
+                    boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)',
+                    color: '#1e293b'
                   }}
                 />
               </PieChart>
             </ResponsiveContainer>
           </div>
         </div>
-        
+
         <div className="mt-6 space-y-3">
           <div className="flex justify-between items-center">
-            <div className="text-sm font-medium text-gray-900">Total Expenses</div>
-            <div className="text-xl font-bold text-gray-900">${total.toFixed(2)}</div>
+            <div className="text-sm font-medium text-slate-900 dark:text-white">Total Expenses</div>
+            <div className="text-xl font-bold text-slate-900 dark:text-white">${total.toFixed(2)}</div>
           </div>
-          
+
           {/* Category legend */}
           <div className="grid grid-cols-2 gap-2 mt-4">
             {data.slice(0, 6).map((item, index) => (
-              <div 
+              <div
                 key={item.name}
-                className="flex items-center space-x-2 text-sm cursor-pointer hover:bg-gray-50 p-1 rounded"
+                className="flex items-center space-x-2 text-sm cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-700/50 p-1 rounded transition-colors"
                 onClick={() => handlePieClick(item)}
               >
-                <div 
-                  className="w-3 h-3 rounded-full" 
-                  style={{ 
+                <div
+                  className="w-3 h-3 rounded-full"
+                  style={{
                     background: `linear-gradient(135deg, ${COLORS[index % COLORS.length]}dd 0%, ${COLORS[index % COLORS.length]} 100%)`,
                     boxShadow: '0 1px 2px rgba(0, 0, 0, 0.1)'
                   }}
                 ></div>
-                <span className="text-gray-700 truncate">{item.name}</span>
+                <span className="text-slate-700 dark:text-slate-300 truncate">{item.name}</span>
               </div>
             ))}
           </div>

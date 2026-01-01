@@ -96,12 +96,12 @@ export default function TransactionTable({ transactions, selectedCategory, onCat
   }
 
   return (
-    <div className="bg-slate-800/50 backdrop-blur-sm border border-slate-700/50 rounded-xl overflow-hidden shadow-xl animate-in fade-in zoom-in-95 duration-500">
+    <div className="bg-white dark:bg-slate-800/50 backdrop-blur-sm border border-slate-200 dark:border-slate-700/50 rounded-xl overflow-hidden shadow-xl animate-in fade-in zoom-in-95 duration-500 transition-colors">
       <div className="p-6 space-y-6">
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
           <div className="space-y-1">
-            <h3 className="text-lg font-semibold text-white">Transactions</h3>
-            <p className="text-sm text-slate-400">
+            <h3 className="text-lg font-semibold text-slate-900 dark:text-white">Transactions</h3>
+            <p className="text-sm text-slate-500 dark:text-slate-400">
               Detailed view of all imported data
             </p>
           </div>
@@ -110,7 +110,7 @@ export default function TransactionTable({ transactions, selectedCategory, onCat
             {/* Search Input */}
             <div className="relative group w-full md:w-64">
               <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                <svg className="h-4 w-4 text-slate-400 group-focus-within:text-indigo-400 transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <svg className="h-4 w-4 text-slate-400 group-focus-within:text-indigo-500 dark:group-focus-within:text-indigo-400 transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                 </svg>
               </div>
@@ -119,7 +119,7 @@ export default function TransactionTable({ transactions, selectedCategory, onCat
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 placeholder="Search..."
-                className="block w-full pl-10 pr-3 py-2 border border-slate-700 rounded-lg leading-5 bg-slate-900/50 text-slate-300 placeholder-slate-500 focus:outline-none focus:bg-slate-900 focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm transition-all"
+                className="block w-full pl-10 pr-3 py-2 border border-slate-300 dark:border-slate-700 rounded-lg leading-5 bg-slate-50 dark:bg-slate-900/50 text-slate-900 dark:text-slate-300 placeholder-slate-500 focus:outline-none focus:bg-white dark:focus:bg-slate-900 focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm transition-all"
               />
             </div>
 
@@ -128,10 +128,10 @@ export default function TransactionTable({ transactions, selectedCategory, onCat
               <select
                 value={selectedCategory || 'All Categories'}
                 onChange={(e) => handleCategoryChange(e.target.value)}
-                className="block w-full pl-3 pr-10 py-2 text-base border-slate-700 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-lg bg-slate-900/50 text-slate-300 appearance-none"
+                className="block w-full pl-3 pr-10 py-2 text-base border-slate-300 dark:border-slate-700 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-lg bg-slate-50 dark:bg-slate-900/50 text-slate-900 dark:text-slate-300 appearance-none transition-colors"
               >
                 {categories.map(category => (
-                  <option key={category} value={category === 'All Categories' ? '' : category} className="bg-slate-800">
+                  <option key={category} value={category === 'All Categories' ? '' : category} className="bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-300">
                     {category}
                   </option>
                 ))}
@@ -150,7 +150,7 @@ export default function TransactionTable({ transactions, selectedCategory, onCat
                   handleCategoryChange('All Categories')
                   setSearchTerm('')
                 }}
-                className="px-3 py-2 bg-slate-700/50 text-slate-300 rounded-lg text-sm hover:bg-slate-700 hover:text-white transition-colors flex items-center gap-2"
+                className="px-3 py-2 bg-slate-200 dark:bg-slate-700/50 text-slate-600 dark:text-slate-300 rounded-lg text-sm hover:bg-slate-300 dark:hover:bg-slate-700 hover:text-slate-900 dark:hover:text-white transition-colors flex items-center gap-2"
               >
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -162,55 +162,55 @@ export default function TransactionTable({ transactions, selectedCategory, onCat
         </div>
 
         {/* Responsive Table */}
-        <div className="overflow-x-auto rounded-lg border border-slate-700/50">
-          <table className="w-full text-sm text-left text-slate-400">
-            <thead className="text-xs text-slate-400 uppercase bg-slate-900/50">
+        <div className="overflow-x-auto rounded-lg border border-slate-200 dark:border-slate-700/50">
+          <table className="w-full text-sm text-left text-slate-600 dark:text-slate-400">
+            <thead className="text-xs text-slate-500 dark:text-slate-400 uppercase bg-slate-100 dark:bg-slate-900/50">
               <tr>
-                <th className="px-6 py-3 cursor-pointer hover:text-white transition-colors group" onClick={() => handleSort('Transaction Date')}>
+                <th className="px-6 py-3 cursor-pointer hover:text-slate-900 dark:hover:text-white transition-colors group" onClick={() => handleSort('Transaction Date')}>
                   <div className="flex items-center gap-1">
                     Date
                     {sortConfig.key === 'Transaction Date' && (
-                      <span className="text-indigo-400">{sortConfig.direction === 'asc' ? '↑' : '↓'}</span>
+                      <span className="text-indigo-600 dark:text-indigo-400">{sortConfig.direction === 'asc' ? '↑' : '↓'}</span>
                     )}
                   </div>
                 </th>
-                <th className="px-6 py-3 cursor-pointer hover:text-white transition-colors group" onClick={() => handleSort('Transaction Description')}>
+                <th className="px-6 py-3 cursor-pointer hover:text-slate-900 dark:hover:text-white transition-colors group" onClick={() => handleSort('Transaction Description')}>
                   <div className="flex items-center gap-1">
                     Description
                     {sortConfig.key === 'Transaction Description' && (
-                      <span className="text-indigo-400">{sortConfig.direction === 'asc' ? '↑' : '↓'}</span>
+                      <span className="text-indigo-600 dark:text-indigo-400">{sortConfig.direction === 'asc' ? '↑' : '↓'}</span>
                     )}
                   </div>
                 </th>
-                <th className="px-6 py-3 cursor-pointer hover:text-white transition-colors group" onClick={() => handleSort('Account Name')}>
+                <th className="px-6 py-3 cursor-pointer hover:text-slate-900 dark:hover:text-white transition-colors group" onClick={() => handleSort('Account Name')}>
                   <div className="flex items-center gap-1">
                     Category
                     {sortConfig.key === 'Account Name' && (
-                      <span className="text-indigo-400">{sortConfig.direction === 'asc' ? '↑' : '↓'}</span>
+                      <span className="text-indigo-600 dark:text-indigo-400">{sortConfig.direction === 'asc' ? '↑' : '↓'}</span>
                     )}
                   </div>
                 </th>
-                <th className="px-6 py-3 text-right cursor-pointer hover:text-white transition-colors group" onClick={() => handleSort('Amount')}>
+                <th className="px-6 py-3 text-right cursor-pointer hover:text-slate-900 dark:hover:text-white transition-colors group" onClick={() => handleSort('Amount')}>
                   <div className="flex items-center justify-end gap-1">
                     Amount
                     {sortConfig.key === 'Amount' && (
-                      <span className="text-indigo-400">{sortConfig.direction === 'asc' ? '↑' : '↓'}</span>
+                      <span className="text-indigo-600 dark:text-indigo-400">{sortConfig.direction === 'asc' ? '↑' : '↓'}</span>
                     )}
                   </div>
                 </th>
               </tr>
             </thead>
-            <tbody>
+            <tbody className="divide-y divide-slate-200 dark:divide-slate-800">
               {paginatedTransactions.length > 0 ? (
                 paginatedTransactions.map((transaction, index) => (
                   <tr
                     key={index}
-                    className="bg-transparent border-b border-slate-800 hover:bg-slate-700/30 transition-colors"
+                    className="bg-white dark:bg-transparent hover:bg-slate-50 dark:hover:bg-slate-700/30 transition-colors"
                   >
-                    <td className="px-6 py-4 font-medium text-slate-200 whitespace-nowrap">
+                    <td className="px-6 py-4 font-medium text-slate-900 dark:text-slate-200 whitespace-nowrap">
                       {new Date(transaction['Transaction Date'] || '').toLocaleDateString(undefined, { year: 'numeric', month: '2-digit', day: '2-digit' })}
                     </td>
-                    <td className="px-6 py-4 text-slate-300">
+                    <td className="px-6 py-4 text-slate-600 dark:text-slate-300">
                       <div className="max-w-md truncate" title={transaction['Transaction Description']}>
                         {transaction['Transaction Description'] || transaction['Transaction Line Description']}
                       </div>
@@ -218,12 +218,12 @@ export default function TransactionTable({ transactions, selectedCategory, onCat
                     <td className="px-6 py-4">
                       <button
                         onClick={() => handleCategoryChange(transaction['Account Name'] || 'Unknown')}
-                        className="text-indigo-400 hover:text-indigo-300 hover:underline transition-colors text-xs font-medium bg-indigo-500/10 px-2 py-1 rounded border border-indigo-500/20"
+                        className="text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 dark:hover:text-indigo-300 hover:underline transition-colors text-xs font-medium bg-indigo-50 dark:bg-indigo-500/10 px-2 py-1 rounded border border-indigo-200 dark:border-indigo-500/20"
                       >
                         {transaction['Account Name'] || 'Unknown'}
                       </button>
                     </td>
-                    <td className={`px-6 py-4 text-right font-medium ${(parseFloat(transaction['Amount (One column)'] || '0') < 0) ? 'text-red-400' : 'text-emerald-400'}`}>
+                    <td className={`px-6 py-4 text-right font-medium ${(parseFloat(transaction['Amount (One column)'] || '0') < 0) ? 'text-red-500 dark:text-red-400' : 'text-emerald-600 dark:text-emerald-400'}`}>
                       {formatCurrency(transaction['Amount (One column)'] || '0')}
                     </td>
                   </tr>
@@ -242,22 +242,22 @@ export default function TransactionTable({ transactions, selectedCategory, onCat
 
         {/* Pagination */}
         {totalPages > 1 && (
-          <div className="flex items-center justify-between pt-4 border-t border-slate-700/50">
+          <div className="flex items-center justify-between pt-4 border-t border-slate-200 dark:border-slate-700/50">
             <div className="text-sm text-slate-500">
-              Showing <span className="text-white font-medium">{Math.min((currentPage - 1) * itemsPerPage + 1, filteredTransactions.length)}</span> to <span className="text-white font-medium">{Math.min(currentPage * itemsPerPage, filteredTransactions.length)}</span> of <span className="text-white font-medium">{filteredTransactions.length}</span> entries
+              Showing <span className="text-slate-900 dark:text-white font-medium">{Math.min((currentPage - 1) * itemsPerPage + 1, filteredTransactions.length)}</span> to <span className="text-slate-900 dark:text-white font-medium">{Math.min(currentPage * itemsPerPage, filteredTransactions.length)}</span> of <span className="text-slate-900 dark:text-white font-medium">{filteredTransactions.length}</span> entries
             </div>
             <div className="flex gap-2">
               <button
                 onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
                 disabled={currentPage === 1}
-                className="px-3 py-1 bg-slate-800 border border-slate-700 rounded-md text-sm text-slate-300 hover:bg-slate-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                className="px-3 py-1 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-md text-sm text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
               >
                 Previous
               </button>
               <button
                 onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
                 disabled={currentPage === totalPages}
-                className="px-3 py-1 bg-slate-800 border border-slate-700 rounded-md text-sm text-slate-300 hover:bg-slate-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                className="px-3 py-1 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-md text-sm text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
               >
                 Next
               </button>

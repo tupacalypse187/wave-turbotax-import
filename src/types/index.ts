@@ -13,6 +13,8 @@ export interface NormalizedTransaction {
   amount: number
   category: string
   rawCategory: string
+  accountType?: string
+  accountGroup?: string
 }
 
 export interface FinancialSummary {

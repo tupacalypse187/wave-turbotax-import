@@ -55,6 +55,7 @@ export const CATEGORY_MAPPING: Record<string, TaxCategory> = {
   "Payment": "Payment",
   "Credit Card Payment": "Payment",
   "Owner Investment": "Equity",
+  "Owner Investment / Drawings": "Equity",
   "Owner's Draw": "Equity",
   "Owner Draw": "Equity",
   "Personal Expense": "Equity",
@@ -89,7 +90,9 @@ export function normalizeTransaction(tx: Transaction, index: number): Normalized
       description,
       amount,
       category: getStandardCategory(category),
-      rawCategory: category
+      rawCategory: category,
+      accountType: tx['Account Type'],
+      accountGroup: tx['Account Group']
     }
 
     return normalized
@@ -118,9 +121,12 @@ export function calculateFinancialSummary(transactions: NormalizedTransaction[])
   console.log('calculateFinancialSummary - Transactions:', transactions.length)
 
   // Filter out non-business transaction types
-  const businessTransactions = transactions.filter(
-    t => t.category !== 'Transfer' && t.category !== 'Payment' && t.category !== 'Equity'
-  )
+  const businessTransactions = transactions.filter(t => {
+    return t.category !== 'Transfer' &&
+      t.category !== 'Payment' &&
+      t.category !== 'Equity' &&
+      t.accountGroup !== 'Liability';
+  })
 
   const income = businessTransactions.filter(t => t.amount > 0)
   const expenses = businessTransactions.filter(t => t.amount < 0)

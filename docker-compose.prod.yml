@@ -85,18 +85,6 @@ services:
   #         cpus: '0.1'
   #         memory: 64M
 
-        ]
-      interval: 30s
-      timeout: 5s
-      retries: 3
-    deploy:
-      resources:
-        limits:
-          cpus: "0.5"
-          memory: 1G
-        reservations:
-          cpus: "0.2"
-          memory: 512M
 
   # Prometheus for metrics
   prometheus:
