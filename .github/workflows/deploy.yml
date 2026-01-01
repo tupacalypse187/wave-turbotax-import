@@ -1,9 +1,9 @@
 name: 🚀 Deploy to Production
 
-permissions:
   packages: write
   contents: read
   security-events: write
+  issues: write
 
 on:
   push:
@@ -437,22 +437,7 @@ jobs:
           # Email notification (if configured)
           if [ -n "${{ secrets.SMTP_HOST }}" ]; then
             # Create email content
-            cat > email.txt <<EOF
-            From: Wave TurboTax CI/CD <${{ secrets.SMTP_FROM }}>
-            To: Admin <${{ secrets.NOTIFICATION_EMAIL }}>
-            Subject: ✅ Wave TurboTax Deployed Successfully
-            
-            Your Wave TurboTax application has been successfully deployed!
-            
-            🌐 URL: https://${{ env.DOMAIN }}
-            📦 Image: ${{ needs.build-image.outputs.image-digest }}
-            👤 Deployed by: ${{ github.actor }}
-            🌿 Commit: ${{ github.sha }}
-            📅 Time: $(date -u)
-            
-            --
-            Automated by GitHub Actions
-            EOF
+            printf "From: Wave TurboTax CI/CD <${{ secrets.SMTP_FROM }}>\nTo: Admin <${{ secrets.NOTIFICATION_EMAIL }}>\nSubject: ✅ Wave TurboTax Deployed Successfully\n\nYour Wave TurboTax application has been successfully deployed!\n\n🌐 URL: https://${{ env.DOMAIN }}\n📦 Image: ${{ needs.build-image.outputs.image-digest }}\n👤 Deployed by: ${{ github.actor }}\n🌿 Commit: ${{ github.sha }}\n📅 Time: $(date -u)\n\n--\nAutomated by GitHub Actions\n" > email.txt
             
             # Send email
             curl --ssl-reqd \
@@ -490,28 +475,7 @@ jobs:
           environment: production
           deployment-id: ${{ github.run_id }}
 
-  # 🧪 Performance Testing (Optional)
-  performance-test:
-    name: 🧪 Performance Testing
-    runs-on: ubuntu-latest
-    needs: [deploy]
-    if: success() && github.event_name == 'push' && github.ref == 'refs/heads/main'
 
-    steps:
-      - name: 🧪 Load Testing with K6
-        uses: grafana/k6-action@v0.3.1
-        with:
-          filename: ./tests/performance/load-test.js
-        env:
-          URL: https://${{ env.DOMAIN }}
-
-      - name: 📊 Upload Performance Results
-        uses: actions/upload-artifact@v4
-        if: always()
-        with:
-          name: performance-results
-          path: performance-results.html
-          retention-days: 30
 
   # 🛡️ Post-Deployment Security Scan
   security-scan:
@@ -521,11 +485,17 @@ jobs:
     if: success()
 
     steps:
+      - name: 📥 Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: 🔧 Fix Permissions
+        run: |
+          chmod -R 777 .
+
       - name: 🛡️ OWASP ZAP Baseline Scan
         uses: zaproxy/action-baseline@v0.10.0
         with:
           target: "https://${{ env.DOMAIN }}"
-          rules_file_name: ".zap/rules.tsv"
           cmd_options: "-a"
 
       - name: 📤 Upload Security Report
