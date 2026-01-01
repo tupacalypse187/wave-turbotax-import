@@ -71,8 +71,8 @@ export default function ExpenseSummary({ transactions, onCategoryClick }: Expens
             <button
               onClick={() => setViewMode('grid')}
               className={`px-3 py-1 text-sm rounded-md transition-colors ${viewMode === 'grid'
-                  ? 'bg-blue-100 dark:bg-blue-500/20 text-blue-700 dark:text-blue-300'
-                  : 'bg-slate-100 dark:bg-slate-700/50 text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700'
+                ? 'bg-blue-100 dark:bg-blue-500/20 text-blue-700 dark:text-blue-300'
+                : 'bg-slate-100 dark:bg-slate-700/50 text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700'
                 }`}
             >
               Grid
@@ -80,8 +80,8 @@ export default function ExpenseSummary({ transactions, onCategoryClick }: Expens
             <button
               onClick={() => setViewMode('bar')}
               className={`px-3 py-1 text-sm rounded-md transition-colors ${viewMode === 'bar'
-                  ? 'bg-blue-100 dark:bg-blue-500/20 text-blue-700 dark:text-blue-300'
-                  : 'bg-slate-100 dark:bg-slate-700/50 text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700'
+                ? 'bg-blue-100 dark:bg-blue-500/20 text-blue-700 dark:text-blue-300'
+                : 'bg-slate-100 dark:bg-slate-700/50 text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700'
                 }`}
             >
               Chart
@@ -119,25 +119,32 @@ export default function ExpenseSummary({ transactions, onCategoryClick }: Expens
             })}
           </div>
         ) : (
-          <div className="h-80 relative w-full">
-            <div className="relative w-full h-full min-h-[320px]">
-              <ResponsiveContainer width="100%" height="100%" aspect={16 / 9}>
-                <BarChart data={data} style={{ cursor: 'pointer' }}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" strokeOpacity={0.3} />
+          <div className="w-full overflow-y-auto overflow-x-hidden" style={{ maxHeight: '600px' }}>
+            <div style={{ height: Math.max(400, data.length * 60) }}>
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart
+                  data={data}
+                  layout="vertical"
+                  margin={{ top: 20, right: 30, left: 40, bottom: 20 }}
+                  style={{ cursor: 'pointer' }}
+                >
+                  <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" strokeOpacity={0.3} horizontal={false} />
                   <XAxis
-                    dataKey="category"
-                    tick={{ fill: 'currentColor', fontSize: 11 }}
-                    className="text-slate-500 dark:text-slate-400"
-                    angle={-45}
-                    textAnchor="end"
-                    height={80}
-                  />
-                  <YAxis
+                    type="number"
                     tick={{ fill: 'currentColor', fontSize: 12 }}
                     className="text-slate-500 dark:text-slate-400"
                     tickFormatter={(value) => `$${value}`}
                   />
+                  <YAxis
+                    type="category"
+                    dataKey="category"
+                    tick={{ fill: 'currentColor', fontSize: 13, fontWeight: 500 }}
+                    width={180}
+                    className="text-slate-700 dark:text-slate-300"
+                    interval={0}
+                  />
                   <Tooltip
+                    cursor={{ fill: 'rgba(148, 163, 184, 0.1)' }}
                     formatter={(value: number | undefined) => [`$${(value || 0).toFixed(2)}`, 'Amount']}
                     contentStyle={{
                       backgroundColor: 'rgba(255, 255, 255, 0.95)',
@@ -146,12 +153,14 @@ export default function ExpenseSummary({ transactions, onCategoryClick }: Expens
                       boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
                       color: '#1e293b'
                     }}
+                    labelStyle={{ color: '#64748b' }}
                   />
-                  <Bar dataKey="amount" radius={[8, 8, 0, 0]}>
+                  <Bar dataKey="amount" radius={[0, 4, 4, 0]} barSize={32}>
                     {data.map((_, index) => (
                       <Cell
                         key={`cell-${index}`}
                         fill={COLORS[index % COLORS.length]}
+                        className="transition-all duration-300 hover:opacity-80"
                       />
                     ))}
                   </Bar>
