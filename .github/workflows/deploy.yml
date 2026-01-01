@@ -483,10 +483,11 @@ jobs:
           chmod -R 777 .
 
       - name: 🛡️ OWASP ZAP Baseline Scan
-        uses: zaproxy/action-baseline@v0.10.0
+        uses: zaproxy/action-baseline@v0.12.0
         with:
           target: "https://${{ env.DOMAIN }}"
           cmd_options: "-a"
+          artifact_name: "zap-scan-results"
 
       - name: 📤 Upload Security Report
         uses: actions/upload-artifact@v4
