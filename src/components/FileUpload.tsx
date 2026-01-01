@@ -1,14 +1,14 @@
 import React, { useState, useCallback } from 'react'
 import Papa from 'papaparse'
 import { Transaction } from '../types'
-import { useSetAtom } from 'jotai'
-import { transactionsAtom } from '../store'
+import { useSetAtom, useAtom } from 'jotai'
+import { transactionsAtom, isCaptchaVerifiedAtom } from '../store'
 import { Turnstile } from '@marsidev/react-turnstile'
 
 export default function FileUpload() {
   const [file, setFile] = useState<File | null>(null)
   const [error, setError] = useState<string | null>(null)
-  const [isCaptchaVerified, setIsCaptchaVerified] = useState(false)
+  const [isCaptchaVerified, setIsCaptchaVerified] = useAtom(isCaptchaVerifiedAtom)
   const setTransactions = useSetAtom(transactionsAtom)
 
   const handleFileChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {

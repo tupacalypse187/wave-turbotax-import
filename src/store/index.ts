@@ -26,3 +26,5 @@ export const financialSummaryAtom = atom((get) => {
 })
 
 export const currentViewAtom = atom<'converter' | 'dashboard'>('converter')
+
+export const isCaptchaVerifiedAtom = atom(false)
