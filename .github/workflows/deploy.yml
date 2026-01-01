@@ -479,12 +479,9 @@ jobs:
           chmod -R 777 .
 
       - name: 🛡️ OWASP ZAP Baseline Scan
-        uses: zaproxy/action-baseline@v0.12.0
         continue-on-error: true
-        with:
-          target: "https://${{ env.DOMAIN }}"
-          cmd_options: "-a"
-          artifact_name: "zap-scan-results"
+        run: |
+          docker run -v $(pwd):/zap/wrk/:rw -t ghcr.io/zaproxy/zaproxy:stable zap-baseline.py -t https://${{ env.DOMAIN }} -r report_html.html -a
 
       - name: 📤 Upload Security Report
         uses: actions/upload-artifact@v4
