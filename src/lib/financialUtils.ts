@@ -11,7 +11,10 @@ export type TaxCategory =
   | "Rent & Utilities"
   | "Travel & Meals"
   | "Other Expenses"
-  | "Uncategorized";
+  | "Uncategorized"
+  | "Transfer"
+  | "Payment"
+  | "Equity";
 
 export const CATEGORY_MAPPING: Record<string, TaxCategory> = {
   "Sales": "Income",
@@ -47,6 +50,14 @@ export const CATEGORY_MAPPING: Record<string, TaxCategory> = {
   "Dues & Subscriptions": "Other Expenses",
   "Education & Training": "Other Expenses",
   "Bank Service Charges": "Other Expenses",
+  // Non-taxable categories
+  "Transfer": "Transfer",
+  "Payment": "Payment",
+  "Credit Card Payment": "Payment",
+  "Owner Investment": "Equity",
+  "Owner's Draw": "Equity",
+  "Owner Draw": "Equity",
+  "Personal Expense": "Equity",
 };
 
 export function getStandardCategory(rawCategory: string): TaxCategory {
@@ -90,7 +101,7 @@ export function normalizeTransaction(tx: Transaction, index: number): Normalized
 
 export function normalizeTransactions(transactions: Transaction[]): NormalizedTransaction[] {
   console.log(`normalizeTransactions - Input: ${transactions.length} transactions`)
-  
+
   const normalized = transactions
     .map((tx, idx) => normalizeTransaction(tx, idx))
     .filter((tx): tx is NormalizedTransaction => tx !== null)
@@ -106,8 +117,13 @@ export function normalizeTransactions(transactions: Transaction[]): NormalizedTr
 export function calculateFinancialSummary(transactions: NormalizedTransaction[]): FinancialSummary {
   console.log('calculateFinancialSummary - Transactions:', transactions.length)
 
-  const income = transactions.filter(t => t.amount > 0)
-  const expenses = transactions.filter(t => t.amount < 0)
+  // Filter out non-business transaction types
+  const businessTransactions = transactions.filter(
+    t => t.category !== 'Transfer' && t.category !== 'Payment' && t.category !== 'Equity'
+  )
+
+  const income = businessTransactions.filter(t => t.amount > 0)
+  const expenses = businessTransactions.filter(t => t.amount < 0)
 
   const totalIncome = income.reduce((sum, t) => sum + t.amount, 0)
   const totalExpenses = expenses.reduce((sum, t) => sum + Math.abs(t.amount), 0)
