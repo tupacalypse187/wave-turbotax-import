@@ -41,8 +41,8 @@ export default function TransactionTable({ transactions, selectedCategory, onCat
 
     // Sorting
     return filtered.sort((a, b) => {
-      let aValue: any = a[sortConfig.key as keyof Transaction] || ''
-      let bValue: any = b[sortConfig.key as keyof Transaction] || ''
+      let aValue: string | number = a[sortConfig.key as keyof Transaction] || ''
+      let bValue: string | number = b[sortConfig.key as keyof Transaction] || ''
 
       // Special handling for Amount to sort numerically
       if (sortConfig.key === 'Amount' || sortConfig.key === 'Amount (One column)') {
