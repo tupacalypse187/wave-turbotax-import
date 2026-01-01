@@ -3,8 +3,10 @@ global:
   evaluation_interval: 15s
 
 scrape_configs:
-  - job_name: 'wave-turbotax'
+  - job_name: "prometheus"
     static_configs:
-      - targets: ['app:8080']
-    metrics_path: '/metrics'
-    scrape_interval: 30s
+      - targets: ["localhost:9090"]
+
+  - job_name: "app"
+    static_configs:
+      - targets: ["app:8080"]
