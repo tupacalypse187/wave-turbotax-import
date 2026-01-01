@@ -3,13 +3,16 @@ import Papa from 'papaparse'
 import { Transaction } from '../types'
 import { useSetAtom } from 'jotai'
 import { transactionsAtom } from '../store'
+import { Turnstile } from '@marsidev/react-turnstile'
 
 export default function FileUpload() {
   const [file, setFile] = useState<File | null>(null)
   const [error, setError] = useState<string | null>(null)
+  const [isCaptchaVerified, setIsCaptchaVerified] = useState(false)
   const setTransactions = useSetAtom(transactionsAtom)
 
   const handleFileChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    if (!isCaptchaVerified) return
     const selectedFile = e.target.files?.[0]
     if (!selectedFile) return
 
@@ -26,10 +29,12 @@ export default function FileUpload() {
         setError(err.message)
       }
     })
-  }, [setTransactions])
+  }, [setTransactions, isCaptchaVerified])
 
   const handleDrop = useCallback((e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault()
+    if (!isCaptchaVerified) return
+
     const droppedFile = e.dataTransfer.files?.[0]
     if (!droppedFile) return
 
@@ -51,17 +56,26 @@ export default function FileUpload() {
         setError(err.message)
       }
     })
-  }, [setTransactions])
+  }, [setTransactions, isCaptchaVerified])
 
   const handleDragOver = useCallback((e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault()
   }, [])
 
   return (
-    <div className="file-upload">
+    <div className="file-upload space-y-4">
+      <div className="flex justify-center">
+        <Turnstile
+          siteKey={import.meta.env.VITE_TURNSTILE_SITE_KEY || '1x00000000000000000000AA'}
+          onSuccess={() => setIsCaptchaVerified(true)}
+          onExpire={() => setIsCaptchaVerified(false)}
+          onError={() => setIsCaptchaVerified(false)}
+        />
+      </div>
+
       <div
-        className="upload-zone"
-        onDrop={handleDrop}
+        className={`upload-zone transition-all duration-200 ${!isCaptchaVerified ? 'opacity-50 cursor-not-allowed pointer-events-none grayscale' : ''}`}
+        onDrop={isCaptchaVerified ? handleDrop : undefined}
         onDragOver={handleDragOver}
       >
         <div className="upload-content">
@@ -70,12 +84,17 @@ export default function FileUpload() {
             <polyline points="17,8 12,3 7 8" />
             <line x1="12" y1="3" x2="12" y2="21" />
           </svg>
-          <p>Drag and drop your CSV file here, or click to browse</p>
+          <p>
+            {!isCaptchaVerified
+              ? "Please complete the security check above"
+              : "Drag and drop your CSV file here, or click to browse"}
+          </p>
           <input
             type="file"
             accept=".csv"
             onChange={handleFileChange}
             className="file-input"
+            disabled={!isCaptchaVerified}
           />
         </div>
       </div>

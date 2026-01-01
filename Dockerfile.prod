@@ -46,6 +46,11 @@ RUN npm install --include=dev && npm cache clean --force
 
 # Ensure PATH includes node_modules/.bin and build
 ENV PATH="/app/node_modules/.bin:${PATH}"
+
+# Inject environment variables
+ARG VITE_TURNSTILE_SITE_KEY
+ENV VITE_TURNSTILE_SITE_KEY=$VITE_TURNSTILE_SITE_KEY
+
 RUN npm run build
 
 # =================================================================================
@@ -66,9 +71,9 @@ COPY --from=builder /app/dist /opt/app/dist
 # Optimize static assets
 RUN echo "🚀 Optimizing static assets..." \
     && find /opt/app/dist -type f \( -name "*.js" -o -name "*.css" -o -name "*.html" \) \
-        -exec gzip -fk --best {} \; \
+    -exec gzip -fk --best {} \; \
     && find /opt/app/dist -type f \( -name "*.js" -o -name "*.css" -o -name "*.html" \) \
-        -exec brotli -fk {} \; \
+    -exec brotli -fk {} \; \
     && echo "✅ Asset compression completed"
 
 # =================================================================================

@@ -213,6 +213,7 @@ jobs:
             NODE_ENV=production
             VITE_APP_URL=https://${{ env.DOMAIN }}
             VITE_API_URL=https://api.${{ env.DOMAIN }}
+            VITE_TURNSTILE_SITE_KEY=${{ secrets.VITE_TURNSTILE_SITE_KEY }}
 
       - name: 🔍 Trivy Security Scan
         uses: aquasecurity/trivy-action@master
@@ -410,7 +411,7 @@ jobs:
 
             # Clean up only unused wave-turbotax containers (not all containers)
             echo "Cleaning up stopped wave-turbotax containers..."
-            docker ps -a --filter "name=wave-turbotax" --format "{{.ID}}" | \
+            docker ps -a --filter "name=wave-turbotax" --filter "status=exited" --format "{{.ID}}" | \
               xargs -r docker rm || true
 
             echo "Cleanup completed"
@@ -435,12 +436,8 @@ jobs:
 
           # Email notification (if configured)
           if [ -n "${{ secrets.SMTP_HOST }}" ]; then
-            curl --ssl-reqd \
-              --url "smtp://${{ secrets.SMTP_HOST }}" \
-              --user "${{ secrets.SMTP_USER }}:${{ secrets.SMTP_PASSWORD }}" \
-              --mail-from "${{ secrets.SMTP_FROM }}" \
-              --mail-rcpt "${{ secrets.NOTIFICATION_EMAIL }}" \
-              --upload-file - << EOF
+            # Create email content
+            cat > email.txt <<EOF
             From: Wave TurboTax CI/CD <${{ secrets.SMTP_FROM }}>
             To: Admin <${{ secrets.NOTIFICATION_EMAIL }}>
             Subject: ✅ Wave TurboTax Deployed Successfully
@@ -456,6 +453,14 @@ jobs:
             --
             Automated by GitHub Actions
             EOF
+            
+            # Send email
+            curl --ssl-reqd \
+              --url "smtp://${{ secrets.SMTP_HOST }}" \
+              --user "${{ secrets.SMTP_USER }}:${{ secrets.SMTP_PASSWORD }}" \
+              --mail-from "${{ secrets.SMTP_FROM }}" \
+              --mail-rcpt "${{ secrets.NOTIFICATION_EMAIL }}" \
+              --upload-file email.txt
           fi
 
       - name: 🚨 Notify on Failure
