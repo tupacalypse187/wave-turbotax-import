@@ -155,6 +155,7 @@ export default function ExpenseSummary({ transactions, onCategoryClick }: Expens
                     }}
                     labelStyle={{ color: '#64748b' }}
                   />
+                  {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
                   <Bar dataKey="amount" radius={[0, 4, 4, 0]} barSize={32} onClick={(data: any) => handleCategoryClick(data.category)}>
                     {data.map((_, index) => (
                       <Cell
