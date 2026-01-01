@@ -467,15 +467,6 @@ jobs:
               ${{ secrets.DISCORD_WEBHOOK_URL }}
           fi
 
-      - name: 📊 Update GitHub Deployment
-        if: needs.deploy.result == 'success'
-        uses: chrnorm/deployment-status@v2
-        with:
-          token: "${{ github.token }}"
-          environment-url: "https://${{ env.DOMAIN }}"
-          environment: production
-          deployment-id: ${{ github.run_id }}
-
   # 🛡️ Post-Deployment Security Scan
   security-scan:
     name: 🛡️ Post-Deployment Security Scan
