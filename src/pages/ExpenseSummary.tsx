@@ -40,6 +40,16 @@ export default function ExpenseSummary({ transactions, onCategoryClick }: Expens
     '#10b981', '#14b8a6', '#f97316', '#ef4444'
   ]
 
+  // Stable color assignment based on category string
+  const getColorForCategory = (category: string) => {
+    let hash = 0
+    for (let i = 0; i < category.length; i++) {
+      hash = category.charCodeAt(i) + ((hash << 5) - hash)
+    }
+    const index = Math.abs(hash) % COLORS.length
+    return COLORS[index]
+  }
+
   const handleCategoryClick = useCallback((category: string) => {
     if (onCategoryClick) {
       onCategoryClick(category)
@@ -91,7 +101,7 @@ export default function ExpenseSummary({ transactions, onCategoryClick }: Expens
 
         {viewMode === 'grid' ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-            {data.map((item, index) => {
+            {data.map((item) => {
               const percentage = totalExpenses > 0 ? (item.amount / totalExpenses * 100) : 0
               return (
                 <div
@@ -102,7 +112,7 @@ export default function ExpenseSummary({ transactions, onCategoryClick }: Expens
                   <div className="flex items-center justify-between mb-2">
                     <div
                       className="w-4 h-4 rounded-full"
-                      style={{ backgroundColor: COLORS[index % COLORS.length] }}
+                      style={{ backgroundColor: getColorForCategory(item.category) }}
                     ></div>
                     <span className="text-lg font-bold text-slate-900 dark:text-white">
                       ${item.amount.toFixed(0)}
@@ -157,10 +167,10 @@ export default function ExpenseSummary({ transactions, onCategoryClick }: Expens
                   />
                   {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
                   <Bar dataKey="amount" radius={[0, 4, 4, 0]} barSize={32} onClick={(data: any) => handleCategoryClick(data.category)}>
-                    {data.map((_, index) => (
+                    {data.map((item, index) => (
                       <Cell
                         key={`cell-${index}`}
-                        fill={COLORS[index % COLORS.length]}
+                        fill={getColorForCategory(item.category)}
                         className="transition-all duration-300 hover:opacity-80"
                       />
                     ))}
