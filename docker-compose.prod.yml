@@ -19,7 +19,9 @@ services:
       - "8080:8080"
     # Run entrypoint script that handles permissions correctly
     networks:
-      - app-network
+      app-network:
+        aliases:
+          - app
     healthcheck:
       test: ["CMD", "/usr/local/bin/healthcheck.sh"]
       interval: 30s
