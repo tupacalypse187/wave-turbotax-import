@@ -328,26 +328,50 @@ jobs:
             echo "Starting new deployment..."
             docker compose -f docker-compose.prod.yml --env-file .env.prod up -d
 
-            # Wait for health check
-            echo "Waiting for health check..."
+            # Wait for health check - Main App
+            echo "Waiting for App health check..."
             for i in {1..30}; do
               if curl -f http://localhost:8080/health; then
-                echo "✅ Health check passed"
+                echo "✅ App Health check passed"
                 break
               fi
-              echo "Health check attempt $i/30..."
+              echo "App Health check attempt $i/30..."
               sleep 5
             done
 
-            # Verify deployment
-            if curl -f http://localhost:8080/health; then
-              echo "✅ Deployment successful"
+            # Wait for health check - Prometheus
+            echo "Waiting for Prometheus health check..."
+            for i in {1..30}; do
+              if curl -f http://localhost:9090/-/healthy; then
+                echo "✅ Prometheus Health check passed"
+                break
+              fi
+              echo "Prometheus Health check attempt $i/30..."
+              sleep 5
+            done
+
+            # Wait for health check - Grafana
+            echo "Waiting for Grafana health check..."
+            for i in {1..30}; do
+              if curl -f http://localhost:3000/api/health; then
+                echo "✅ Grafana Health check passed"
+                break
+              fi
+              echo "Grafana Health check attempt $i/30..."
+              sleep 5
+            done
+
+            # Verify deployment (Final Aggregate Check)
+            if curl -f http://localhost:8080/health && \
+               curl -f http://localhost:9090/-/healthy && \
+               curl -f http://localhost:3000/api/health; then
+              echo "✅ Full Stack Deployment successful"
 
               # Show status
               docker compose -f docker-compose.prod.yml ps
               docker images | grep ${IMAGE_NAME}
             else
-              echo "❌ Health check failed"
+              echo "❌ Stack Health check failed"
               docker compose -f docker-compose.prod.yml logs
               exit 1
             fi
