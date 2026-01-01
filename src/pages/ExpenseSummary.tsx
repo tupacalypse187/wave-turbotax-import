@@ -155,7 +155,7 @@ export default function ExpenseSummary({ transactions, onCategoryClick }: Expens
                     }}
                     labelStyle={{ color: '#64748b' }}
                   />
-                  <Bar dataKey="amount" radius={[0, 4, 4, 0]} barSize={32}>
+                  <Bar dataKey="amount" radius={[0, 4, 4, 0]} barSize={32} onClick={(data: any) => handleCategoryClick(data.category)}>
                     {data.map((_, index) => (
                       <Cell
                         key={`cell-${index}`}
