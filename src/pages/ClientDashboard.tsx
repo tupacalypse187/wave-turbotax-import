@@ -81,31 +81,35 @@ export default function ClientDashboard() {
   return (
     <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
       {/* Header */}
-      <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 border-b border-slate-200 dark:border-slate-800 pb-6 transition-colors">
-        <div>
-          <h1 className="text-4xl font-bold tracking-tight text-slate-900 dark:text-white mb-2 transition-colors">Financial Dashboard</h1>
-          <p className="text-slate-500 dark:text-slate-400 text-lg transition-colors">Detailed overview of your business expenses and performance.</p>
+      <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 border-b border-slate-200 dark:border-obsidian-800 pb-6 transition-colors">
+        <div className="space-y-1">
+          {/* Breadcrumb-ish title */}
+          <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-slate-400">
+            <span className="w-2 h-2 rounded-full bg-brand-primary"></span>
+            Dashboard
+          </div>
+          <h1 className="text-3xl font-display font-bold tracking-tight text-slate-900 dark:text-white transition-colors">Financial Overview</h1>
         </div>
 
         {hasActiveFilters && (
           <div className="flex flex-wrap items-center gap-2 animate-in fade-in">
-            <span className="text-sm text-slate-500 mr-2">Filters:</span>
+            <span className="text-xs font-bold uppercase tracking-widest text-slate-400 dark:text-slate-300 mr-2">Filters:</span>
             {selectedCategory && (
-              <span className="px-3 py-1 bg-indigo-100 dark:bg-indigo-500/20 text-indigo-700 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-500/30 rounded-full text-sm font-medium flex items-center gap-1 transition-colors">
+              <span className="px-3 py-1 bg-brand-primary/10 text-brand-primary border border-brand-primary/20 rounded-full text-xs font-bold flex items-center gap-1 transition-colors">
                 {selectedCategory}
-                <button onClick={() => handleCategoryFilter(selectedCategory)} className="hover:text-indigo-900 dark:hover:text-white">×</button>
+                <button onClick={() => handleCategoryFilter(selectedCategory)} className="hover:text-brand-primary/70">×</button>
               </span>
             )}
             {selectedMonth && (
-              <span className="px-3 py-1 bg-emerald-100 dark:bg-emerald-500/20 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-500/30 rounded-full text-sm font-medium flex items-center gap-1 transition-colors">
+              <span className="px-3 py-1 bg-brand-secondary/10 text-brand-secondary border border-brand-secondary/20 rounded-full text-xs font-bold flex items-center gap-1 transition-colors">
                 {selectedMonth}
-                <button onClick={() => handleMonthFilter(selectedMonth)} className="hover:text-emerald-900 dark:hover:text-white">×</button>
+                <button onClick={() => handleMonthFilter(selectedMonth)} className="hover:text-brand-secondary/70">×</button>
               </span>
             )}
             {(selectedCategory || selectedMonth || selectedYear) && (
               <button
                 onClick={clearAllFilters}
-                className="px-3 py-1 text-sm text-red-500 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-md transition-colors"
+                className="px-3 py-1 text-xs font-bold text-red-500 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/10 rounded-full transition-colors"
               >
                 Clear All
               </button>
@@ -115,16 +119,15 @@ export default function ClientDashboard() {
 
         {/* Year Selector */}
         {availableYears.length > 1 && (
-          <div className="flex items-center gap-2 mt-2 animate-in fade-in">
-            <span className="text-sm font-medium text-slate-500 dark:text-slate-400">Year:</span>
-            <div className="flex bg-slate-100 dark:bg-slate-700/50 rounded-lg p-1">
+          <div className="flex items-center gap-3 animate-in fade-in">
+            <div className="flex bg-slate-100 dark:bg-obsidian-900 border border-slate-200 dark:border-obsidian-800 rounded-lg p-1">
               {availableYears.map(year => (
                 <button
                   key={year}
                   onClick={() => handleYearSelect(year)}
-                  className={`px-4 py-1.5 rounded-md text-sm font-medium transition-all ${selectedYear === year
-                    ? 'bg-white dark:bg-slate-600 text-indigo-600 dark:text-indigo-300 shadow-sm'
-                    : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+                  className={`px-3 py-1.5 rounded-md text-xs font-bold transition-all ${selectedYear === year
+                    ? 'bg-brand-primary text-white shadow-sm'
+                    : 'text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
                     }`}
                 >
                   {year}
@@ -132,9 +135,9 @@ export default function ClientDashboard() {
               ))}
               <button
                 onClick={() => setSelectedYear('')}
-                className={`px-4 py-1.5 rounded-md text-sm font-medium transition-all ${!selectedYear
-                  ? 'bg-white dark:bg-slate-600 text-indigo-600 dark:text-indigo-300 shadow-sm'
-                  : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+                className={`px-3 py-1.5 rounded-md text-xs font-bold transition-all ${!selectedYear
+                  ? 'bg-brand-primary text-white shadow-sm'
+                  : 'text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
                   }`}
               >
                 All

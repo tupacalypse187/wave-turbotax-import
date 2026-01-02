@@ -46,38 +46,31 @@ export default function DataPreview() {
   const remainingCount = transactions.length - 30
 
   return (
-    <div className="space-y-4 animate-in fade-in slide-in-from-bottom-4 duration-500">
-      <div className="flex items-center justify-between p-4 bg-emerald-50 border border-emerald-100 dark:bg-emerald-500/10 dark:border-emerald-500/20 rounded-xl transition-colors">
-        <div className="flex items-center gap-3">
-          <div className="p-2 bg-emerald-100 text-emerald-600 dark:bg-emerald-500/20 dark:text-emerald-400 rounded-full">
+    <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
+
+      {/* Header Stats Bar */}
+      <div className="flex items-center justify-between p-6 bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 rounded-2xl shadow-sm">
+        <div className="flex items-center gap-4">
+          <div className="p-3 bg-brand-secondary/10 text-brand-secondary rounded-xl">
             <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
           </div>
           <div>
-            <h3 className="text-lg font-semibold text-slate-800 dark:text-white">{transactions.length} Transactions Loaded</h3>
-            <p className="text-sm text-slate-500 dark:text-slate-400">Ready for conversion and analysis</p>
+            <h3 className="text-lg font-display font-bold text-slate-900 dark:text-white">{transactions.length} Transactions Loaded</h3>
+            <p className="text-sm text-slate-500 dark:text-slate-400">Ready for processing</p>
           </div>
         </div>
-        <button
-          className="px-4 py-2 text-sm text-slate-500 hover:text-slate-800 hover:bg-slate-200 dark:text-slate-300 dark:hover:text-white dark:hover:bg-slate-700/50 rounded-lg transition-colors"
-          onClick={() => window.location.reload()}
-        >
-          Clear
-        </button>
-      </div>
 
-      {availableYears.length > 1 && (
-        <div className="flex items-center gap-3 p-4 bg-slate-100 dark:bg-slate-800/50 rounded-xl border border-slate-200 dark:border-slate-700/50">
-          <span className="text-sm font-medium text-slate-600 dark:text-slate-400">Select Tax Year:</span>
-          <div className="flex bg-white dark:bg-slate-900/50 rounded-lg p-1 border border-slate-200 dark:border-slate-700">
+        {availableYears.length > 1 && (
+          <div className="flex items-center gap-3 p-1.5 bg-slate-100 dark:bg-obsidian-950 rounded-lg border border-slate-200 dark:border-obsidian-800">
             {availableYears.map(year => (
               <button
                 key={year}
                 onClick={() => setSelectedYear(selectedYear === year ? '' : year)}
-                className={`px-4 py-1.5 rounded-md text-sm font-medium transition-all ${selectedYear === year
-                  ? 'bg-indigo-600 text-white shadow-sm'
-                  : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800'
+                className={`px-3 py-1.5 rounded-md text-xs font-bold transition-all ${selectedYear === year
+                  ? 'bg-brand-primary text-white shadow-sm'
+                  : 'text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
                   }`}
               >
                 {year}
@@ -85,47 +78,60 @@ export default function DataPreview() {
             ))}
             <button
               onClick={() => setSelectedYear('')}
-              className={`px-4 py-1.5 rounded-md text-sm font-medium transition-all ${!selectedYear
-                ? 'bg-indigo-600 text-white shadow-sm'
-                : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800'
+              className={`px-3 py-1.5 rounded-md text-xs font-bold transition-all ${!selectedYear
+                ? 'bg-brand-primary text-white shadow-sm'
+                : 'text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
                 }`}
             >
-              All Years
+              All
             </button>
           </div>
-        </div>
-      )}
+        )}
 
+        <button
+          className="px-4 py-2 text-xs font-bold uppercase tracking-wide text-slate-400 hover:text-red-500 transition-colors"
+          onClick={() => window.location.reload()}
+        >
+          Reset
+        </button>
+      </div>
+
+      {/* Main Action Button */}
       <button
         onClick={handleConvert}
-        className="w-full py-4 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white font-bold rounded-xl shadow-lg shadow-purple-500/25 transition-all transform hover:scale-[1.01] active:scale-[0.99] flex items-center justify-center gap-2"
+        className="group w-full py-5 bg-gradient-to-r from-brand-primary to-purple-600 hover:from-brand-primary/90 hover:to-purple-600/90 text-white font-display font-bold text-lg rounded-2xl shadow-xl shadow-brand-primary/20 transition-all transform hover:scale-[1.01] active:scale-[0.99] flex items-center justify-center gap-3 border border-white/10"
       >
-        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <svg className="w-6 h-6 group-hover:animate-bounce" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
         </svg>
         Generate & Download TXF
       </button>
 
-      <div className="bg-slate-50 dark:bg-slate-800/50 backdrop-blur-sm border border-slate-200 dark:border-slate-700/50 rounded-xl overflow-hidden mt-8 transition-colors">
-        <div className="p-4 border-b border-slate-200 dark:border-slate-700/50 bg-white dark:bg-transparent">
-          <h4 className="text-slate-800 dark:text-white font-medium">Data Preview</h4>
+      {/* Data Grid */}
+      <div className="bg-white dark:bg-obsidian-900 border border-slate-200 dark:border-obsidian-800 rounded-2xl overflow-hidden shadow-sm">
+        <div className="p-4 border-b border-slate-200 dark:border-obsidian-800 bg-slate-50/50 dark:bg-obsidian-950/30 flex justify-between items-center">
+          <h4 className="text-sm font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Data Preview</h4>
+          <span className="text-xs font-mono text-slate-400 bg-slate-100 dark:bg-obsidian-800 px-2 py-1 rounded">
+            {filteredTransactions.length} ROWS
+          </span>
         </div>
-        <div className="overflow-x-auto max-h-96">
+
+        <div className="overflow-x-auto max-h-[500px] scrollbar-thin scrollbar-thumb-slate-200 dark:scrollbar-thumb-obsidian-700">
           <table className="w-full text-left border-collapse">
             <thead>
               <tr>
                 {Object.keys(filteredTransactions[0] || {}).map((header) => (
-                  <th key={header} className="p-3 border-b border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-xs font-semibold text-slate-500 uppercase tracking-wider sticky top-0">
+                  <th key={header} className="p-4 border-b border-slate-200 dark:border-obsidian-800 bg-slate-50 dark:bg-obsidian-900/95 backdrop-blur-sm text-[10px] font-bold text-slate-400 uppercase tracking-widest sticky top-0 z-10">
                     {header}
                   </th>
                 ))}
               </tr>
             </thead>
-            <tbody>
+            <tbody className="divide-y divide-slate-100 dark:divide-obsidian-800">
               {filteredTransactions.slice(0, 50).map((row, index) => (
-                <tr key={index} className="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors border-b border-slate-100 dark:border-slate-800">
+                <tr key={index} className="group hover:bg-slate-50 dark:hover:bg-obsidian-800/50 transition-colors">
                   {Object.values(row).map((cell, i) => (
-                    <td key={i} className="p-3 text-sm text-slate-600 dark:text-slate-300 whitespace-nowrap">
+                    <td key={i} className="p-4 text-xs font-medium text-slate-600 dark:text-slate-300 whitespace-nowrap group-hover:text-slate-900 dark:group-hover:text-white transition-colors">
                       {cell as React.ReactNode}
                     </td>
                   ))}
@@ -135,15 +141,12 @@ export default function DataPreview() {
           </table>
         </div>
         {remainingCount > 0 && (
-          <div className="p-3 text-center text-xs text-slate-500 bg-slate-100 dark:bg-slate-900/30 border-t border-slate-200 dark:border-slate-700/50">
-            ...and {remainingCount} more rows
+          <div className="p-4 text-center text-xs font-medium text-slate-500 dark:text-slate-400 border-t border-slate-200 dark:border-obsidian-800 bg-slate-50 dark:bg-obsidian-950/30">
+            +{remainingCount} more rows hidden
           </div>
         )}
       </div>
 
-      <p className="text-center text-slate-400 dark:text-slate-500 text-xs mt-4">
-        Your data never leaves your browser. All processing is done locally.
-      </p>
     </div>
   )
 }

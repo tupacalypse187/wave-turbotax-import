@@ -15,9 +15,12 @@
     "test:coverage": "vitest run --coverage"
   },
   "dependencies": {
+    "@fontsource/inter": "^5.2.8",
+    "@fontsource/space-grotesk": "^5.2.10",
     "@marsidev/react-turnstile": "^1.4.1",
     "@tailwindcss/postcss": "^4.1.18",
     "autoprefixer": "^10.4.23",
+    "framer-motion": "^12.23.26",
     "jotai": "^2.10.1",
     "papaparse": "^5.4.1",
     "postcss": "^8.5.6",

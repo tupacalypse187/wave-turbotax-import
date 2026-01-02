@@ -22,79 +22,83 @@ export default function KPICharts({ transactions }: { transactions: Transaction[
   const transactionCount = filteredTransactions.length // Use the same filtered count
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-      <Card className="relative overflow-hidden bg-white dark:bg-slate-800/50 border-slate-200 dark:border-slate-700/50 backdrop-blur-sm transition-colors">
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 animate-in fade-in slide-in-from-bottom-4 duration-500 delay-100">
+      <Card className="relative overflow-hidden bg-white dark:bg-obsidian-900 border-slate-200 dark:border-obsidian-800 backdrop-blur-sm transition-all hover:shadow-lg hover:shadow-brand-secondary/10 group">
         <CardContent className="p-6 relative">
-          <div className="absolute top-0 right-0 w-20 h-20 bg-gradient-to-br from-green-400/10 to-green-600/10 rounded-bl-2xl"></div>
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm font-medium text-slate-500 dark:text-slate-400">Total Income</p>
-              <p className="text-3xl font-bold text-green-600 dark:text-green-400 mt-1">
-                ${totalIncome.toFixed(2)}
-              </p>
-            </div>
-            <div className="p-3 bg-gradient-to-br from-green-500 to-green-600 rounded-2xl shadow-lg shadow-green-500/20">
-              <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <div className="absolute top-0 right-0 w-32 h-32 bg-brand-secondary/5 rounded-bl-[100px] transition-transform group-hover:scale-110"></div>
+          <div className="flex items-center justify-between mb-4">
+            <div className="p-3 bg-brand-secondary/10 rounded-2xl text-brand-secondary group-hover:bg-brand-secondary group-hover:text-white transition-colors">
+              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
               </svg>
             </div>
+            {/* Trend Indicator (Mock) */}
+            <span className="flex items-center text-xs font-bold text-brand-secondary bg-brand-secondary/10 px-2 py-1 rounded-full">
+              +0%
+            </span>
+          </div>
+          <div>
+            <p className="text-sm font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest">Total Income</p>
+            <p className="text-3xl font-display font-bold text-slate-900 dark:text-white mt-1 group-hover:text-brand-secondary transition-colors">
+              ${totalIncome.toFixed(2)}
+            </p>
           </div>
         </CardContent>
       </Card>
 
-      <Card className="relative overflow-hidden bg-white dark:bg-slate-800/50 border-slate-200 dark:border-slate-700/50 backdrop-blur-sm transition-colors">
+      <Card className="relative overflow-hidden bg-white dark:bg-obsidian-900 border-slate-200 dark:border-obsidian-800 backdrop-blur-sm transition-all hover:shadow-lg hover:shadow-brand-accent/10 group">
         <CardContent className="p-6 relative">
-          <div className="absolute top-0 right-0 w-20 h-20 bg-gradient-to-br from-red-400/10 to-red-600/10 rounded-bl-2xl"></div>
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm font-medium text-slate-500 dark:text-slate-400">Total Expenses</p>
-              <p className="text-3xl font-bold text-red-600 dark:text-red-400 mt-1">
-                ${totalExpenses.toFixed(2)}
-              </p>
-            </div>
-            <div className="p-3 bg-gradient-to-br from-red-500 to-red-600 rounded-2xl shadow-lg shadow-red-500/20">
-              <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <div className="absolute top-0 right-0 w-32 h-32 bg-brand-accent/5 rounded-bl-[100px] transition-transform group-hover:scale-110"></div>
+          <div className="flex items-center justify-between mb-4">
+            <div className="p-3 bg-brand-accent/10 rounded-2xl text-brand-accent group-hover:bg-brand-accent group-hover:text-white transition-colors">
+              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 12H4" />
               </svg>
             </div>
           </div>
-        </CardContent>
-      </Card>
-
-      <Card className="relative overflow-hidden bg-white dark:bg-slate-800/50 border-slate-200 dark:border-slate-700/50 backdrop-blur-sm transition-colors">
-        <CardContent className="p-6 relative">
-          <div className="absolute top-0 right-0 w-20 h-20 bg-gradient-to-br from-blue-400/10 to-blue-600/10 rounded-bl-2xl"></div>
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm font-medium text-slate-500 dark:text-slate-400">Net Income</p>
-              <p className={`text-3xl font-bold mt-1 ${netIncome >= 0 ? 'text-blue-600 dark:text-blue-400' : 'text-red-600 dark:text-red-400'}`}>
-                ${netIncome.toFixed(2)}
-              </p>
-            </div>
-            <div className={`p-3 bg-gradient-to-br rounded-2xl shadow-lg ${netIncome >= 0 ? 'from-blue-500 to-blue-600 shadow-blue-500/20' : 'from-red-500 to-red-600 shadow-red-500/20'}`}>
-              <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-              </svg>
-            </div>
+          <div>
+            <p className="text-sm font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest">Total Expenses</p>
+            <p className="text-3xl font-display font-bold text-slate-900 dark:text-white mt-1 group-hover:text-brand-accent transition-colors">
+              ${totalExpenses.toFixed(2)}
+            </p>
           </div>
         </CardContent>
       </Card>
 
-      <Card className="relative overflow-hidden bg-white dark:bg-slate-800/50 border-slate-200 dark:border-slate-700/50 backdrop-blur-sm transition-colors">
+      <Card className="relative overflow-hidden bg-white dark:bg-obsidian-900 border-slate-200 dark:border-obsidian-800 backdrop-blur-sm transition-all hover:shadow-lg hover:shadow-brand-primary/10 group">
         <CardContent className="p-6 relative">
-          <div className="absolute top-0 right-0 w-20 h-20 bg-gradient-to-br from-purple-400/10 to-purple-600/10 rounded-bl-2xl"></div>
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm font-medium text-slate-500 dark:text-slate-400">Transactions</p>
-              <p className="text-3xl font-bold text-slate-900 dark:text-white mt-1">
-                {transactionCount}
-              </p>
+          <div className="absolute top-0 right-0 w-32 h-32 bg-brand-primary/5 rounded-bl-[100px] transition-transform group-hover:scale-110"></div>
+          <div className="flex items-center justify-between mb-4">
+            <div className={`p-3 rounded-2xl transition-colors ${netIncome >= 0 ? 'bg-brand-primary/10 text-brand-primary group-hover:bg-brand-primary group-hover:text-white' : 'bg-red-500/10 text-red-500 group-hover:bg-red-500 group-hover:text-white'}`}>
+              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+              </svg>
             </div>
-            <div className="p-3 bg-gradient-to-br from-purple-500 to-purple-600 rounded-2xl shadow-lg shadow-purple-500/20">
-              <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          </div>
+          <div>
+            <p className="text-sm font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest">Net Income</p>
+            <p className={`text-3xl font-display font-bold mt-1 ${netIncome >= 0 ? 'text-brand-primary' : 'text-brand-accent'}`}>
+              ${netIncome.toFixed(2)}
+            </p>
+          </div>
+        </CardContent>
+      </Card>
+
+      <Card className="relative overflow-hidden bg-white dark:bg-obsidian-900 border-slate-200 dark:border-obsidian-800 backdrop-blur-sm transition-all hover:shadow-lg hover:shadow-purple-500/10 group">
+        <CardContent className="p-6 relative">
+          <div className="absolute top-0 right-0 w-32 h-32 bg-purple-500/5 rounded-bl-[100px] transition-transform group-hover:scale-110"></div>
+          <div className="flex items-center justify-between mb-4">
+            <div className="p-3 bg-purple-500/10 rounded-2xl text-purple-500 group-hover:bg-purple-500 group-hover:text-white transition-colors">
+              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
               </svg>
             </div>
+          </div>
+          <div>
+            <p className="text-sm font-bold text-slate-500 dark:text-slate-200 uppercase tracking-widest">Transactions</p>
+            <p className="text-3xl font-display font-bold text-slate-900 dark:text-white mt-1 group-hover:text-purple-500 transition-colors">
+              {transactionCount}
+            </p>
           </div>
         </CardContent>
       </Card>

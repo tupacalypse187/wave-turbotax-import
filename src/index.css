@@ -1,4 +1,54 @@
 @import "tailwindcss";
+@import "@fontsource/space-grotesk";
+@import "@fontsource/inter";
+
+@theme {
+    /* Fonts */
+    --font-sans: "Inter", sans-serif;
+    --font-display: "Space Grotesk", sans-serif;
+
+    /* Obsidian Palette */
+    --color-obsidian-950: #09090b;
+    --color-obsidian-900: #18181b;
+    --color-obsidian-800: #27272a;
+
+    /* Brand Palette */
+    --color-brand-primary: #8b5cf6;
+    --color-brand-secondary: #14b8a6;
+    --color-brand-accent: #f43f5e;
+
+    /* Animations */
+    --animate-blob: blob 7s infinite;
+    --animate-slide-in: slideIn 0.3s ease-out;
+    --animate-fade-in: fadeIn 0.5s ease-out;
+
+    @keyframes blob {
+        0% {
+            transform: translate(0px, 0px) scale(1);
+        }
+
+        33% {
+            transform: translate(30px, -50px) scale(1.1);
+        }
+
+        66% {
+            transform: translate(-20px, 20px) scale(0.9);
+        }
+
+        100% {
+            transform: translate(0px, 0px) scale(1);
+        }
+    }
+}
+
+@layer base {
+    body {
+        @apply bg-slate-50 text-slate-900 transition-colors duration-300;
+    }
+
+    .dark body {
+        @apply bg-obsidian-950 text-white;
+    }
+}
 
 @custom-variant dark (&:where(.dark, .dark *));
-
