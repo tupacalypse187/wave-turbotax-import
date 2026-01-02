@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useAtom } from 'jotai'
-import { transactionsAtom } from '@/store'
+import { transactionsAtom, availableYearsAtom, selectedYearAtom } from '@/store'
 import KPICharts from './KPICharts'
 import IncomeExpenseChart from './IncomeExpenseChart'
 import ExpensePieChart from './ExpensePieChart'
@@ -9,6 +9,8 @@ import TransactionTable from './TransactionTable'
 
 export default function ClientDashboard() {
   const [transactions] = useAtom(transactionsAtom)
+  const [availableYears] = useAtom(availableYearsAtom)
+  const [selectedYear, setSelectedYear] = useAtom(selectedYearAtom)
   const [selectedCategory, setSelectedCategory] = useState<string>('')
   const [selectedMonth, setSelectedMonth] = useState<string>('')
 
@@ -31,6 +33,10 @@ export default function ClientDashboard() {
     setSelectedCategory(category === selectedCategory ? '' : category)
   }
 
+  const handleYearSelect = (year: string) => {
+    setSelectedYear(year === selectedYear ? '' : year)
+  }
+
   const handleMonthFilter = (month: string) => {
     setSelectedMonth(month === selectedMonth ? '' : month)
   }
@@ -38,13 +44,22 @@ export default function ClientDashboard() {
   const clearAllFilters = () => {
     setSelectedCategory('')
     setSelectedMonth('')
+    setSelectedYear('')
   }
 
   // Filter transactions based on selected filters
   const getFilteredTransactions = () => {
     let filtered = transactions.filter(t =>
-      t['Account Name'] !== 'Owner Investment / Drawings'
+      t['Account Name'] !== 'Owner Investment / Drawings' &&
+      t['Account Name'] !== 'Cash on Hand'
     )
+
+    if (selectedYear) {
+      filtered = filtered.filter(t => {
+        const dateStr = t['Transaction Date'] || ''
+        return dateStr.startsWith(selectedYear)
+      })
+    }
 
     if (selectedCategory) {
       filtered = filtered.filter(t => t['Account Name'] === selectedCategory)
@@ -61,7 +76,7 @@ export default function ClientDashboard() {
     return filtered
   }
 
-  const hasActiveFilters = selectedCategory || selectedMonth
+  const hasActiveFilters = selectedCategory || selectedMonth || selectedYear
 
   return (
     <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
@@ -87,12 +102,44 @@ export default function ClientDashboard() {
                 <button onClick={() => handleMonthFilter(selectedMonth)} className="hover:text-emerald-900 dark:hover:text-white">×</button>
               </span>
             )}
-            <button
-              onClick={clearAllFilters}
-              className="px-3 py-1 text-sm text-red-500 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-md transition-colors"
-            >
-              Clear All
-            </button>
+            {(selectedCategory || selectedMonth || selectedYear) && (
+              <button
+                onClick={clearAllFilters}
+                className="px-3 py-1 text-sm text-red-500 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-md transition-colors"
+              >
+                Clear All
+              </button>
+            )}
+          </div>
+        )}
+
+        {/* Year Selector */}
+        {availableYears.length > 1 && (
+          <div className="flex items-center gap-2 mt-2 animate-in fade-in">
+            <span className="text-sm font-medium text-slate-500 dark:text-slate-400">Year:</span>
+            <div className="flex bg-slate-100 dark:bg-slate-700/50 rounded-lg p-1">
+              {availableYears.map(year => (
+                <button
+                  key={year}
+                  onClick={() => handleYearSelect(year)}
+                  className={`px-4 py-1.5 rounded-md text-sm font-medium transition-all ${selectedYear === year
+                    ? 'bg-white dark:bg-slate-600 text-indigo-600 dark:text-indigo-300 shadow-sm'
+                    : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+                    }`}
+                >
+                  {year}
+                </button>
+              ))}
+              <button
+                onClick={() => setSelectedYear('')}
+                className={`px-4 py-1.5 rounded-md text-sm font-medium transition-all ${!selectedYear
+                  ? 'bg-white dark:bg-slate-600 text-indigo-600 dark:text-indigo-300 shadow-sm'
+                  : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+                  }`}
+              >
+                All
+              </button>
+            </div>
           </div>
         )}
       </div>

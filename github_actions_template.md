@@ -25,6 +25,7 @@ This template provides a secure, multi-stage CI/CD pipeline for web applications
 ---
 ## deploy.yml Template
 Copy this into your project at [.github/workflows/deploy.yml](.github/workflows/deploy.yml).
+
 **Prerequisites:**
 1.  Set up these **GitHub Secrets** (Settings > Secrets and variables > Actions):
     *   `PROD_HOST`: Your server IP or hostname.

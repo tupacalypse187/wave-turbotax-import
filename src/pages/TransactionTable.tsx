@@ -21,7 +21,8 @@ export default function TransactionTable({ transactions, selectedCategory, onCat
   // Filter transactions
   const filteredTransactions = useMemo(() => {
     let filtered = transactions.filter(t =>
-      t['Account Name'] !== 'Owner Investment / Drawings'
+      t['Account Name'] !== 'Owner Investment / Drawings' &&
+      t['Account Name'] !== 'Cash on Hand'
     )
 
     // Category Filter
@@ -63,7 +64,10 @@ export default function TransactionTable({ transactions, selectedCategory, onCat
   const categories = useMemo(() => {
     const cats = Array.from(new Set(
       transactions
-        .filter(t => t['Account Name'] !== 'Owner Investment / Drawings')
+        .filter(t =>
+          t['Account Name'] !== 'Owner Investment / Drawings' &&
+          t['Account Name'] !== 'Cash on Hand'
+        )
         .map(t => t['Account Name'] || 'Unknown')
     )).sort()
     return ['All Categories', ...cats]

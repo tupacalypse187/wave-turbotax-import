@@ -11,9 +11,10 @@ interface ExpenseSummaryProps {
 export default function ExpenseSummary({ transactions, onCategoryClick }: ExpenseSummaryProps) {
   const [viewMode, setViewMode] = useState<'bar' | 'grid'>('grid')
 
-  // Filter out Owner Investment / Drawings and only keep actual expense transactions
+  // Filter out Owner Investment / Drawings and Cash on Hand
   const filteredTransactions = transactions.filter(t =>
-    t['Account Name'] !== 'Owner Investment / Drawings'
+    t['Account Name'] !== 'Owner Investment / Drawings' &&
+    t['Account Name'] !== 'Cash on Hand'
   )
 
   const expensesByCategory = filteredTransactions.reduce((acc, t) => {

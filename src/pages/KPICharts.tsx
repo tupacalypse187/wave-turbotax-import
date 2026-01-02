@@ -2,9 +2,10 @@ import { Card, CardContent } from '@/components/ui/Card'
 import { Transaction } from '../types'
 
 export default function KPICharts({ transactions }: { transactions: Transaction[] }) {
-  // Filter out "Owner Investment / Drawings" and only keep actual expense transactions
+  // Filter out "Owner Investment / Drawings" and "Cash on Hand"
   const filteredTransactions = transactions.filter(t =>
-    t['Account Name'] !== 'Owner Investment / Drawings'
+    t['Account Name'] !== 'Owner Investment / Drawings' &&
+    t['Account Name'] !== 'Cash on Hand'
   )
 
   // All amounts should be treated as expenses (negative values in Wave)

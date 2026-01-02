@@ -1,13 +1,32 @@
 import { useAtom } from 'jotai'
 import { useCallback } from 'react'
-import { transactionsAtom } from '../store'
+import { transactionsAtom, availableYearsAtom, selectedYearAtom } from '../store'
 import { convertToTXF } from '../utils/txfConverter'
 
 export default function DataPreview() {
   const [transactions] = useAtom(transactionsAtom)
+  const [availableYears] = useAtom(availableYearsAtom)
+  const [selectedYear, setSelectedYear] = useAtom(selectedYearAtom)
+
+  const getFilteredTransactions = () => {
+    let filtered = transactions.filter(t =>
+      t['Account Name'] !== 'Owner Investment / Drawings' &&
+      t['Account Name'] !== 'Cash on Hand'
+    )
+
+    if (selectedYear) {
+      filtered = filtered.filter(t => {
+        const dateStr = t['Transaction Date'] || ''
+        return dateStr.startsWith(selectedYear)
+      })
+    }
+    return filtered
+  }
+
+  const filteredTransactions = getFilteredTransactions()
 
   const handleConvert = useCallback(() => {
-    const txfData = convertToTXF(transactions, 'NeuralSec Advisory')
+    const txfData = convertToTXF(filteredTransactions, 'NeuralSec Advisory')
 
     const blob = new Blob([txfData], { type: 'text/plain' })
     const url = URL.createObjectURL(blob)
@@ -18,15 +37,13 @@ export default function DataPreview() {
     a.click()
     document.body.removeChild(a)
     URL.revokeObjectURL(url)
-  }, [transactions])
+  }, [filteredTransactions])
 
   if (transactions.length === 0) {
     return null
   }
 
-  const headers = Object.keys(transactions[0])
-  const displayCount = 30
-  const remainingCount = transactions.length - displayCount
+  const remainingCount = transactions.length - 30
 
   return (
     <div className="space-y-4 animate-in fade-in slide-in-from-bottom-4 duration-500">
@@ -50,6 +67,35 @@ export default function DataPreview() {
         </button>
       </div>
 
+      {availableYears.length > 1 && (
+        <div className="flex items-center gap-3 p-4 bg-slate-100 dark:bg-slate-800/50 rounded-xl border border-slate-200 dark:border-slate-700/50">
+          <span className="text-sm font-medium text-slate-600 dark:text-slate-400">Select Tax Year:</span>
+          <div className="flex bg-white dark:bg-slate-900/50 rounded-lg p-1 border border-slate-200 dark:border-slate-700">
+            {availableYears.map(year => (
+              <button
+                key={year}
+                onClick={() => setSelectedYear(selectedYear === year ? '' : year)}
+                className={`px-4 py-1.5 rounded-md text-sm font-medium transition-all ${selectedYear === year
+                  ? 'bg-indigo-600 text-white shadow-sm'
+                  : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800'
+                  }`}
+              >
+                {year}
+              </button>
+            ))}
+            <button
+              onClick={() => setSelectedYear('')}
+              className={`px-4 py-1.5 rounded-md text-sm font-medium transition-all ${!selectedYear
+                ? 'bg-indigo-600 text-white shadow-sm'
+                : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800'
+                }`}
+            >
+              All Years
+            </button>
+          </div>
+        </div>
+      )}
+
       <button
         onClick={handleConvert}
         className="w-full py-4 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white font-bold rounded-xl shadow-lg shadow-purple-500/25 transition-all transform hover:scale-[1.01] active:scale-[0.99] flex items-center justify-center gap-2"
@@ -65,20 +111,22 @@ export default function DataPreview() {
           <h4 className="text-slate-800 dark:text-white font-medium">Data Preview</h4>
         </div>
         <div className="overflow-x-auto max-h-96">
-          <table className="w-full text-sm text-left text-slate-600 dark:text-slate-400">
-            <thead className="text-xs text-slate-500 uppercase bg-slate-100 dark:bg-slate-900/50 sticky top-0 backdrop-blur-md">
+          <table className="w-full text-left border-collapse">
+            <thead>
               <tr>
-                {headers.map((header) => (
-                  <th key={header} className="px-6 py-3 whitespace-nowrap font-semibold text-slate-700 dark:text-indigo-300/80 tracking-wider bg-slate-100 dark:bg-slate-900/90">{header}</th>
+                {Object.keys(filteredTransactions[0] || {}).map((header) => (
+                  <th key={header} className="p-3 border-b border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-xs font-semibold text-slate-500 uppercase tracking-wider sticky top-0">
+                    {header}
+                  </th>
                 ))}
               </tr>
             </thead>
-            <tbody className="bg-white dark:bg-transparent divide-y divide-slate-200 dark:divide-slate-700/50">
-              {transactions.slice(0, displayCount).map((row, idx) => (
-                <tr key={idx} className="hover:bg-slate-50 dark:hover:bg-slate-700/30 transition-colors">
-                  {headers.map((header) => (
-                    <td key={`${idx}-${header}`} className="px-6 py-3 whitespace-nowrap">
-                      {String(row[header as keyof typeof row] ?? '')}
+            <tbody>
+              {filteredTransactions.slice(0, 50).map((row, index) => (
+                <tr key={index} className="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors border-b border-slate-100 dark:border-slate-800">
+                  {Object.values(row).map((cell, i) => (
+                    <td key={i} className="p-3 text-sm text-slate-600 dark:text-slate-300 whitespace-nowrap">
+                      {cell as React.ReactNode}
                     </td>
                   ))}
                 </tr>
