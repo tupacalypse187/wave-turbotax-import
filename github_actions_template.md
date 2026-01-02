@@ -20,8 +20,8 @@ This template provides a secure, multi-stage CI/CD pipeline for web applications
 5.  **🛡️ Post-Deployment Scan**
     *   **OWASP ZAP**: Runs a baseline penetration test against the live URL.
 ---
-## [.github/workflows/deploy.yml](file:///c:/Users/chady/code/github/tupacalypse187/wave-turbotax-import/.github/workflows/deploy.yml) Template
-Copy this into your project at [.github/workflows/deploy.yml](file:///c:/Users/chady/code/github/tupacalypse187/wave-turbotax-import/.github/workflows/deploy.yml).
+## deploy.yml Template
+Copy this into your project at [.github/workflows/deploy.yml](.github/workflows/deploy.yml).
 **Prerequisites:**
 1.  Set up these **GitHub Secrets** (Settings > Secrets and variables > Actions):
     *   `PROD_HOST`: Your server IP or hostname.
