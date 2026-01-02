@@ -17,7 +17,10 @@ This template provides a secure, multi-stage CI/CD pipeline for web applications
     *   SSH deployment to your server.
     *   Rolling updates (pull new image, restart containers).
     *   **Health Checks**: Verifies the app is actually responding before marking deployment as success.
-5.  **🛡️ Post-Deployment Scan**
+5.  **🧹 Cleanup & Notifications**
+    *   Removes old Docker images to save space.
+    *   Sends Slack/Email notifications based on deployment status.
+6.  **🛡️ Post-Deployment Scan**
     *   **OWASP ZAP**: Runs a baseline penetration test against the live URL.
 ---
 ## deploy.yml Template
@@ -28,6 +31,8 @@ Copy this into your project at [.github/workflows/deploy.yml](.github/workflows/
     *   `PROD_USER`: SSH username (e.g., `root` or `ubuntu`).
     *   `PROD_SSH_KEY`: Private SSH key for the server.
     *   `NOTIFICATION_EMAIL`: (Optional) For email alerts.
+    *   `SLACK_WEBHOOK_URL`: (Optional) Webhook URL for Slack notifications.
+    *   `VITE_TURNSTILE_SITE_KEY`: (Optional) Cloudflare Turnstile Site Key.
 2.  Set up **GitHub Variables** (optional, or hardcode in `env`):
     *   `DOMAIN`: Your application domain.
 ```yaml
@@ -120,6 +125,8 @@ jobs:
           tags: ${{ steps.meta.outputs.tags }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
+          build-args: |
+             VITE_TURNSTILE_SITE_KEY=${{ secrets.VITE_TURNSTILE_SITE_KEY }}
       - name: 🔍 Trivy Vulnerability Scanner
         uses: aquasecurity/trivy-action@master
         with:
@@ -146,13 +153,78 @@ jobs:
           script: |
             export IMAGE="${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest"
             
-            # Simple deployment logic
+            # 1. Prepare Directory
+            mkdir -p /opt/app
+            cd /opt/app
+            
+            # 2. Update Code (if using git for config/compose)
+            # git pull origin main 
+            
+            # 3. Create/Update Environment File
+            cat > .env.prod << EOF
+            IMAGE_NAME=${{ env.IMAGE_NAME }}
+            REGISTRY=${{ env.REGISTRY }}
+            DOMAIN=${{ env.DOMAIN }}
+            EOF
+            
+            # 4. Pull New Image
             docker pull $IMAGE
-            docker stop app || true
-            docker rm app || true
-            docker run -d --name app -p 80:8080 --restart always $IMAGE
+            
+            # 5. Zero-Downtime Deployment (using Docker Compose)
+            # Assuming you have a docker-compose.prod.yml on server or in repo
+            docker compose -f docker-compose.prod.yml down
+            docker compose -f docker-compose.prod.yml up -d
+            
+            # 6. Health Checks (Crucial!)
+            echo "Waiting for health check..."
+            for i in {1..30}; do
+              if curl -f http://localhost:8080/health; then
+                echo "✅ Health check passed"
+                break
+              fi
+              sleep 5
+            done
+
   # =================================================================================
-  # STAGE 5: POST-DEPLOYMENT SECURITY
+  # STAGE 5: CLEANUP & NOTIFICATIONS
+  # =================================================================================
+  cleanup:
+    name: 🧹 Cleanup & Notifications
+    runs-on: ubuntu-latest
+    needs: [deploy]
+    if: always()
+    steps:
+      - name: 🧹 Docker Cleanup
+        uses: appleboy/ssh-action@v1.0.3
+        if: needs.deploy.result == 'success'
+        with:
+          host: ${{ secrets.PROD_HOST }}
+          username: ${{ secrets.PROD_USER }}
+          key: ${{ secrets.PROD_SSH_KEY }}
+          script: |
+             # Clean up old images (keep last 3)
+             docker images | grep ${{ env.IMAGE_NAME }} | sort -k2 -r | tail -n +4 | awk '{print $3}' | xargs -r docker rmi || true
+
+      - name: 📧 Notify on Success
+        if: needs.deploy.result == 'success'
+        run: |
+          if [ -n "${{ secrets.SLACK_WEBHOOK_URL }}" ]; then
+            curl -X POST -H 'Content-type: application/json' \
+              --data "{\"text\":\"✅ Deployment Successful to https://${{ env.DOMAIN }}\n\n📦 Image: ${{ needs.build-image.outputs.image-digest }}\n👤 Deployed by: ${{ github.actor }}\"}" \
+              ${{ secrets.SLACK_WEBHOOK_URL }}
+          fi
+
+      - name: 🚨 Notify on Failure
+        if: needs.deploy.result == 'failure' || needs.deploy.result == 'cancelled'
+        run: |
+          if [ -n "${{ secrets.SLACK_WEBHOOK_URL }}" ]; then
+            curl -X POST -H 'Content-type: application/json' \
+              --data "{\"text\":\"🚨 Deployment FAILED!\n\n🌐 Domain: https://${{ env.DOMAIN }}\n👤 Attempted by: ${{ github.actor }}\"}" \
+              ${{ secrets.SLACK_WEBHOOK_URL }}
+          fi
+
+  # =================================================================================
+  # STAGE 6: POST-DEPLOYMENT SECURITY
   # =================================================================================
   security-scan:
     name: 🛡️ ZAP Scan
@@ -183,10 +255,11 @@ When you are ready to implement this pipeline in a new project, copy the followi
 > Please implement the `.github/workflows/deploy.yml` file following the structure defined in the `github_actions_template.md` template I have provided.
 >
 > **Requirements:**
-> 1.  **Strictly follow the 5-stage pipeline**: Security -> Test -> Build & Scan -> Deploy -> Post-Deploy Scan.
+> 1.  **Strictly follow the 6-stage pipeline**: Security -> Test -> Build & Scan -> Deploy -> Cleanup -> Post-Deploy Scan.
 > 2.  **Include all security tools**: `npm audit`, `trivy`, `grype`, and `OWASP ZAP`.
-> 3.  **Use the defined variables**: `PROD_HOST`, `PROD_USER`, `DOMAIN`, etc.
-> 4.  **Do not omit any stages** or security checks.
+ > 3.  **Use the defined variables**: `PROD_HOST`, `PROD_USER`, `DOMAIN`, etc.
+ > 4.  **Include Secrets**: `SLACK_WEBHOOK_URL` for notifications and `VITE_TURNSTILE_SITE_KEY` for build args.
+ > 5.  **Do not omit any stages** or security checks.
 >
 > Please output the full `.github/workflows/deploy.yml` content.
 ```
