@@ -11,14 +11,7 @@ interface ThemeContextType {
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined)
 
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
-    const [theme, setTheme] = useState<Theme>(() => {
-        const saved = localStorage.getItem('theme')
-        // Validate that the saved theme is one of the allowed values
-        if (saved === 'light' || saved === 'dark' || saved === 'system') {
-            return saved
-        }
-        return 'system' // Default to system
-    })
+    const [theme, setTheme] = useState<Theme>('system')
 
     // Track the actual applied theme (light/dark) for UI purposes
     const [resolvedTheme, setResolvedTheme] = useState<'light' | 'dark'>('light')
