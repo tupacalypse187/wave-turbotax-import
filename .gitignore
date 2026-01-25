@@ -23,6 +23,13 @@ dist-ssr
 *.sln
 *.sw?
 
+# Environment variables with secrets (DO NOT COMMIT)
+.env*.local
+.env.prod.local
+
 # User Data
 accounting_2-year.csv
 *.csv
+
+# Deployment data
+data/
