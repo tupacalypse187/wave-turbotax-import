@@ -15,6 +15,10 @@ export default defineConfig({
       '@': path.resolve(__dirname, './src')
     }
   },
+  build: {
+    // Increase chunk size warning limit (Recharts is ~500kB minified)
+    chunkSizeWarningLimit: 600
+  },
   esbuild: {
     legalComments: 'none'
   }

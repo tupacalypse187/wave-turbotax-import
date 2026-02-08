@@ -48,6 +48,9 @@ RUN npm install --include=dev && npm cache clean --force
 ENV PATH="/app/node_modules/.bin:${PATH}"
 
 # Inject environment variables
+# Note: VITE_TURNSTILE_SITE_KEY is a public site key (not a secret)
+# It's safe to use in ARG/ENV as it's meant to be exposed in the client bundle
+# hadolint ignore=DL3024
 ARG VITE_TURNSTILE_SITE_KEY
 ENV VITE_TURNSTILE_SITE_KEY=$VITE_TURNSTILE_SITE_KEY
 
@@ -55,6 +58,9 @@ RUN npm run build
 
 # =================================================================================
 FROM alpine:3.21.0 AS optimizer
+
+# Update packages to fix security vulnerabilities
+RUN apk upgrade --no-cache --available
 
 # Install optimization tools
 RUN apk add --no-cache \
@@ -78,6 +84,9 @@ RUN echo "🚀 Optimizing static assets..." \
 # PRODUCTION STAGE - Minimal Nginx with security hardening
 # =================================================================================
 FROM nginx:1.27-alpine AS production
+
+# Update packages to fix security vulnerabilities (OpenSSL, libexpat, etc.)
+RUN apk upgrade --no-cache --available
 
 # Metadata
 LABEL maintainer="admin@yantorno.party"
