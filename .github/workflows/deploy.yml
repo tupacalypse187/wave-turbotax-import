@@ -284,9 +284,9 @@ jobs:
             mkdir -p /opt/wave-turbotax
             cd /opt/wave-turbotax
 
-            # Create data directories with proper permissions for bind mounts
-            mkdir -p data/prometheus data/grafana
-            chmod -R 777 data/
+             # Create data directories with proper permissions for bind mounts
+             mkdir -p data/prometheus data/grafana
+             chmod -R 755 data/
 
             # Initialize git repo if not exists
             if [ ! -d .git ]; then
