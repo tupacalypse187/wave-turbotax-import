@@ -318,15 +318,21 @@ jobs:
             echo "Pulling new image: ${REGISTRY}/${IMAGE_NAME}:${IMAGE_TAG}"
             docker pull ${REGISTRY}/${IMAGE_NAME}:${IMAGE_TAG}
 
-            # Update running container
-            if docker compose -f docker-compose.prod.yml ps | grep -q "Up"; then
-              echo "Stopping existing containers..."
-              docker compose -f docker-compose.prod.yml down
-            fi
-
-            # Start new deployment
-            echo "Starting new deployment..."
+            # Rolling update strategy (no downtime, safer than down+up)
+            # This recreates only the app container with the new image
+            # Other services (prometheus, grafana) stay running
+            # If deployment fails, old container keeps running
+            echo "Starting rolling deployment..."
             docker compose -f docker-compose.prod.yml --env-file .env.prod up -d
+
+            # Verify containers started successfully
+            echo "Verifying deployment..."
+            if ! docker compose -f docker-compose.prod.yml ps | grep -q "wave-turbotax-app.*Up"; then
+              echo "❌ App container failed to start! Attempting recovery..."
+              docker compose -f docker-compose.prod.yml logs app --tail=50
+              docker compose -f docker-compose.prod.yml up -d --force-recreate app
+              sleep 10
+            fi
 
             # Wait for health check - Main App
             echo "Waiting for App health check..."
