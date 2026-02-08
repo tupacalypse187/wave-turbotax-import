@@ -504,7 +504,7 @@ jobs:
 
       - name: 🔧 Fix Permissions
         run: |
-          chmod -R 777 .
+          echo "Skip: Permission fix for security scan"
 
       - name: 🛡️ OWASP ZAP Baseline Scan
         continue-on-error: true

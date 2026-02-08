@@ -71,7 +71,6 @@ export function normalizeTransaction(tx: Transaction, index: number): Normalized
     const amount = parseFloat(rawAmount.replace(/,/g, '').replace(/\$/g, ''))
 
     if (isNaN(amount)) {
-      console.warn(`normalizeTransaction[${index}] - Invalid amount: "${rawAmount}"`)
       return null
     }
 
@@ -81,7 +80,7 @@ export function normalizeTransaction(tx: Transaction, index: number): Normalized
 
     const date = new Date(dateValue || Date.now())
     if (isNaN(date.getTime())) {
-      console.warn(`normalizeTransaction[${index}] - Invalid date: "${dateValue}"`)
+      return null
     }
 
     const normalized: NormalizedTransaction = {
@@ -96,30 +95,20 @@ export function normalizeTransaction(tx: Transaction, index: number): Normalized
     }
 
     return normalized
-  } catch (error) {
-    console.error(`normalizeTransaction[${index}] - Error:`, error, tx)
+  } catch {
     return null
   }
 }
 
 export function normalizeTransactions(transactions: Transaction[]): NormalizedTransaction[] {
-  console.log(`normalizeTransactions - Input: ${transactions.length} transactions`)
-
   const normalized = transactions
     .map((tx, idx) => normalizeTransaction(tx, idx))
     .filter((tx): tx is NormalizedTransaction => tx !== null)
-
-  console.log(`normalizeTransactions - Output: ${normalized.length} transactions`)
-  if (normalized.length > 0) {
-    console.log(`normalizeTransactions - First normalized:`, normalized[0])
-  }
 
   return normalized
 }
 
 export function calculateFinancialSummary(transactions: NormalizedTransaction[]): FinancialSummary {
-  console.log('calculateFinancialSummary - Transactions:', transactions.length)
-
   // Filter out non-business transaction types
   const businessTransactions = transactions.filter(t => {
     return t.category !== 'Transfer' &&
@@ -155,14 +144,10 @@ export function calculateFinancialSummary(transactions: NormalizedTransaction[])
     topExpenseAmount
   }
 
-  console.log('calculateFinancialSummary - Summary:', summary)
-
   return summary
 }
 
 export function calculateMonthlyBreakdown(transactions: NormalizedTransaction[]) {
-  console.log('calculateMonthlyBreakdown - Transactions:', transactions.length)
-
   const monthly: Record<string, { income: number; expenses: number }> = {}
 
   transactions.forEach(tx => {
@@ -180,14 +165,10 @@ export function calculateMonthlyBreakdown(transactions: NormalizedTransaction[])
     .map(([month, data]) => ({ month, ...data }))
     .sort((a, b) => a.month.localeCompare(b.month))
 
-  console.log('calculateMonthlyBreakdown - Result:', result)
-
   return result
 }
 
 export function calculateExpenseBreakdown(transactions: NormalizedTransaction[]) {
-  console.log('calculateExpenseBreakdown - Transactions:', transactions.length)
-
   const breakdown: Record<string, number> = {}
 
   transactions.forEach((tx) => {
@@ -201,8 +182,6 @@ export function calculateExpenseBreakdown(transactions: NormalizedTransaction[])
   const result = Object.entries(breakdown)
     .map(([name, value]) => ({ name, value }))
     .sort((a, b) => b.value - a.value)
-
-  console.log('calculateExpenseBreakdown - Result:', result)
 
   return result
 }

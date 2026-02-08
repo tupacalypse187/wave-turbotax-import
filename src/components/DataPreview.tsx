@@ -1,5 +1,5 @@
 import { useAtom } from 'jotai'
-import React, { useCallback } from 'react'
+import React, { useCallback, useMemo } from 'react'
 import { transactionsAtom, availableYearsAtom, selectedYearAtom } from '../store'
 import { convertToTXF } from '../utils/txfConverter'
 
@@ -8,7 +8,7 @@ export default function DataPreview() {
   const [availableYears] = useAtom(availableYearsAtom)
   const [selectedYear, setSelectedYear] = useAtom(selectedYearAtom)
 
-  const getFilteredTransactions = () => {
+  const getFilteredTransactions = useCallback(() => {
     let filtered = transactions.filter(t =>
       t['Account Name'] !== 'Owner Investment / Drawings' &&
       t['Account Name'] !== 'Cash on Hand'
@@ -21,9 +21,9 @@ export default function DataPreview() {
       })
     }
     return filtered
-  }
+  }, [transactions, selectedYear])
 
-  const filteredTransactions = getFilteredTransactions()
+  const filteredTransactions = useMemo(() => getFilteredTransactions(), [getFilteredTransactions])
 
   const handleConvert = useCallback(() => {
     const txfData = convertToTXF(filteredTransactions, 'NeuralSec Advisory')
@@ -43,7 +43,7 @@ export default function DataPreview() {
     return null
   }
 
-  const remainingCount = transactions.length - 30
+  const remainingCount = transactions.length - 50
 
   return (
     <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
@@ -116,30 +116,32 @@ export default function DataPreview() {
           </span>
         </div>
 
-        <div className="overflow-x-auto max-h-[500px] scrollbar-thin scrollbar-thumb-slate-200 dark:scrollbar-thumb-obsidian-700">
-          <table className="w-full text-left border-collapse">
-            <thead>
-              <tr>
-                {Object.keys(filteredTransactions[0] || {}).map((header) => (
-                  <th key={header} className="p-4 border-b border-slate-200 dark:border-obsidian-800 bg-slate-50 dark:bg-obsidian-900/95 backdrop-blur-sm text-[10px] font-bold text-slate-400 uppercase tracking-widest sticky top-0 z-10">
-                    {header}
-                  </th>
-                ))}
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-slate-100 dark:divide-obsidian-800">
-              {filteredTransactions.slice(0, 50).map((row, index) => (
-                <tr key={index} className="group hover:bg-slate-50 dark:hover:bg-obsidian-800/50 transition-colors">
-                  {Object.values(row).map((cell, i) => (
-                    <td key={i} className="p-4 text-xs font-medium text-slate-600 dark:text-slate-300 whitespace-nowrap group-hover:text-slate-900 dark:group-hover:text-white transition-colors">
-                      {cell as React.ReactNode}
-                    </td>
+        {filteredTransactions.length > 0 && (
+          <div className="overflow-x-auto max-h-[500px] scrollbar-thin scrollbar-thumb-slate-200 dark:scrollbar-thumb-obsidian-700">
+            <table className="w-full text-left border-collapse">
+              <thead>
+                <tr>
+                  {Object.keys(filteredTransactions[0]).map((header) => (
+                    <th key={header} className="p-4 border-b border-slate-200 dark:border-obsidian-800 bg-slate-50 dark:bg-obsidian-900/95 backdrop-blur-sm text-[10px] font-bold text-slate-400 uppercase tracking-widest sticky top-0 z-10">
+                      {header}
+                    </th>
                   ))}
                 </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+              </thead>
+              <tbody className="divide-y divide-slate-100 dark:divide-obsidian-800">
+                {filteredTransactions.slice(0, 50).map((row, index) => (
+                  <tr key={index} className="group hover:bg-slate-50 dark:hover:bg-obsidian-800/50 transition-colors">
+                    {Object.values(row).map((cell, i) => (
+                      <td key={i} className="p-4 text-xs font-medium text-slate-600 dark:text-slate-300 whitespace-nowrap group-hover:text-slate-900 dark:group-hover:text-white transition-colors">
+                        {cell as React.ReactNode}
+                      </td>
+                    ))}
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
         {remainingCount > 0 && (
           <div className="p-4 text-center text-xs font-medium text-slate-500 dark:text-slate-400 border-t border-slate-200 dark:border-obsidian-800 bg-slate-50 dark:bg-obsidian-950/30">
             +{remainingCount} more rows hidden

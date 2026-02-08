@@ -61,11 +61,13 @@ export const TXF_MAPPING: Record<string, number> = {
   "Gifts": 298,
 }
 
-export function convertToTXF(transactions: Transaction[], companyName: string = 'NeuralSec Advisory'): string {
+export function convertToTXF(transactions: Transaction[] = [], companyName: string = 'NeuralSec Advisory'): string {
   const output: string[] = []
   const today = new Date().toLocaleDateString('en-US')
 
-  console.log('TXF Conversion - Total transactions:', transactions.length)
+  if (import.meta.env.DEV) {
+    console.log('TXF Conversion - Total transactions:', transactions.length)
+  }
 
   output.push('V041')
   output.push(`A${companyName}`)
@@ -109,13 +111,18 @@ export function convertToTXF(transactions: Transaction[], companyName: string = 
       } else {
         skippedCount++
       }
-    } catch {
+    } catch (error) {
+      if (import.meta.env.DEV) {
+        console.warn('TXF Conversion - Failed to process transaction:', error, row)
+      }
       continue
     }
   }
 
   if (skippedCount > 0) {
-    console.warn(`TXF Conversion: ${skippedCount} transactions skipped (unmapped categories)`)
+    if (import.meta.env.DEV) {
+      console.warn(`TXF Conversion: ${skippedCount} transactions skipped (unmapped categories)`)
+    }
   }
 
   return output.join('\n')

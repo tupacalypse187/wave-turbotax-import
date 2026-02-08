@@ -54,12 +54,7 @@ ENV VITE_TURNSTILE_SITE_KEY=$VITE_TURNSTILE_SITE_KEY
 RUN npm run build
 
 # =================================================================================
-# OPTIMIZATION STAGE - Asset compression and optimization
-# =================================================================================
-# =================================================================================
-# OPTIMIZATION STAGE - Asset compression and optimization
-# =================================================================================
-FROM alpine:3.21 AS optimizer
+FROM alpine:3.21.0 AS optimizer
 
 # Install optimization tools
 RUN apk add --no-cache \

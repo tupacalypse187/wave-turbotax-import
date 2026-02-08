@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useMemo } from 'react'
 import { useAtom } from 'jotai'
 import FileUpload from './components/FileUpload'
 import DataPreview from './components/DataPreview'
@@ -12,10 +12,10 @@ function App() {
   const [activeTab, setActiveTab] = useState<'converter' | 'dashboard'>('converter')
   const [transactions] = useAtom(transactionsAtom)
 
-  const filteredCount = transactions.filter(t =>
+  const filteredCount = useMemo(() => transactions.filter(t =>
     t['Account Name'] !== 'Owner Investment / Drawings' &&
     t['Account Name'] !== 'Cash on Hand'
-  ).length
+  ).length, [transactions])
 
   return (
     <ThemeProvider>

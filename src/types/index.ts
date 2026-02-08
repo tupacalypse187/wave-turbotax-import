@@ -3,6 +3,13 @@ export interface Transaction {
   Amount?: string
   Category?: string
   Description?: string
+  'Transaction Date'?: string
+  'Amount (One column)'?: string
+  'Account Name'?: string
+  'Transaction Description'?: string
+  'Transaction Line Description'?: string
+  'Account Type'?: string
+  'Account Group'?: string
   [key: string]: string | undefined
 }
 
